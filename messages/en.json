@@ -1,0 +1,139 @@
+{
+  "common": {
+    "appName": "AI Day Planner",
+    "tagline": "Empty your head — get your day planned",
+    "loading": "Loading…",
+    "retry": "Try again",
+    "cancel": "Cancel",
+    "close": "Close",
+    "back": "Back",
+    "somethingWentWrong": "Something went wrong",
+    "unexpectedError": "An unexpected error occurred. Please try again.",
+    "notFoundTitle": "Page not found",
+    "notFoundDescription": "This page doesn’t seem to exist.",
+    "goHome": "Go home"
+  },
+  "language": {
+    "label": "Language",
+    "uk": "Українська",
+    "en": "English",
+    "changed": "Language switched to English",
+    "changeFailed": "Couldn’t switch the language"
+  },
+  "nav": {
+    "capture": "Capture",
+    "openMenu": "Open menu",
+    "account": "Account"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "signOutSuccess": "You’ve been signed out",
+    "orContinueWith": "or continue with",
+    "providerComingSoon": "{provider} is coming soon",
+    "fields": {
+      "name": "Name",
+      "namePlaceholder": "What should we call you?",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
+      "passwordPlaceholder": "At least 8 characters",
+      "confirmPassword": "Confirm password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password"
+    },
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to keep planning your day",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "noAccount": "Don’t have an account?",
+      "registerLink": "Create one",
+      "forgotLink": "Forgot password?",
+      "success": "Welcome back!"
+    },
+    "register": {
+      "title": "Create your account",
+      "subtitle": "A few seconds and your head is free",
+      "submit": "Create account",
+      "submitting": "Creating account…",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Sign in",
+      "success": "Account created. Welcome aboard!"
+    },
+    "forgotPassword": {
+      "title": "Reset your password",
+      "subtitle": "Enter your email and we’ll send you a link to set a new password",
+      "submit": "Send reset link",
+      "submitting": "Sending…",
+      "sentTitle": "Check your inbox",
+      "sentDescription": "If an account exists for {email}, we’ve sent it a password reset link.",
+      "backToLogin": "Back to sign in",
+      "devLinkNotice": "Development mode: the link was printed to the server console."
+    },
+    "resetPassword": {
+      "title": "Set a new password",
+      "subtitle": "Choose a new password for your account",
+      "submit": "Save password",
+      "submitting": "Saving…",
+      "success": "Password updated. You can sign in now.",
+      "invalidTokenTitle": "This link is no longer valid",
+      "invalidTokenDescription": "The link has expired or was already used. Request a new one.",
+      "requestNew": "Request a new link"
+    },
+    "validation": {
+      "nameRequired": "Please enter your name",
+      "nameTooLong": "Name is too long (60 characters max)",
+      "emailRequired": "Please enter your email",
+      "emailInvalid": "That doesn’t look like a valid email",
+      "passwordRequired": "Please enter a password",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "passwordTooLong": "Password is too long (72 characters max)",
+      "passwordsDoNotMatch": "Passwords don’t match",
+      "tokenRequired": "Reset token is missing"
+    },
+    "errors": {
+      "invalidCredentials": "Wrong email or password",
+      "emailTaken": "An account with this email already exists",
+      "invalidToken": "This link is invalid or has expired",
+      "rateLimited": "Too many attempts. Please try again later.",
+      "unknown": "The request failed. Please try again."
+    }
+  },
+  "capture": {
+    "title": "What’s on your mind right now?",
+    "hint": "Write or dictate everything you need to do. Don’t think about structure — just dump whatever is in your head.",
+    "placeholder": "For example: call mum, finish the report by Friday, buy groceries, book a doctor’s appointment…",
+    "clear": "Clear",
+    "cleared": "Cleared",
+    "process": "Process with AI",
+    "processing": "Analysing…",
+    "charactersCount": "{count} characters",
+    "emptyWarning": "Write or dictate something first",
+    "processSuccess": "All set — AI is connected. Full analysis lands in Stage 2.",
+    "processError": "Couldn’t process the text",
+    "voice": {
+      "start": "Start recording",
+      "pause": "Pause",
+      "resume": "Resume",
+      "stop": "Stop recording",
+      "recording": "Recording…",
+      "paused": "Paused",
+      "unsupported": "Voice input isn’t supported in this browser",
+      "unsupportedHint": "Try Chrome, Edge or Safari.",
+      "permissionDenied": "No microphone access. Allow it in your browser settings.",
+      "noSpeech": "We didn’t hear anything. Try again.",
+      "error": "Voice input error",
+      "started": "Recording started",
+      "stopped": "Recording stopped"
+    }
+  },
+  "ai": {
+    "status": {
+      "checking": "Checking the AI connection…",
+      "ready": "AI connected",
+      "notConfigured": "AI isn’t configured — add ANTHROPIC_API_KEY to .env",
+      "unreachable": "AI is unreachable"
+    }
+  }
+}

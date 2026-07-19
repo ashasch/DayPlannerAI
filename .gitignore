@@ -78,6 +78,9 @@ web_modules/
 .next
 out
 
+# Local file-backed dev data store
+.data/
+
 # Nuxt.js build / generate output
 .nuxt
 dist
