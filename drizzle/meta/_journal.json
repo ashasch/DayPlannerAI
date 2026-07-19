@@ -8,6 +8,13 @@
       "when": 1784473067598,
       "tag": "0000_shallow_doctor_faustus",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1784490921060,
+      "tag": "0001_broad_senator_kelly",
+      "breakpoints": true
     }
   ]
 }

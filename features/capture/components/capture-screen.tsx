@@ -9,13 +9,15 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { useAutoResizeTextarea } from '@/hooks/use-auto-resize-textarea';
 import { useSpeechRecognition, type SpeechErrorKey } from '@/hooks/use-speech-recognition';
-import type { ExtractedTask } from '@/lib/ai/schemas';
+import { createTasks } from '@/features/tasks/lib/api';
+import { todayIso } from '@/lib/date';
 import { ERROR_CODES } from '@/lib/errors';
 import { LOCALE_TO_BCP47, type Locale } from '@/lib/i18n/config';
+import { createDraftId, type DraftItem, type IsoDate, type TaskDraft } from '@/lib/tasks/types';
 import { cn } from '@/lib/utils';
 
 import { AiStatusBadge } from './ai-status-badge';
-import { TaskList } from './task-list';
+import { TaskDraftList } from './task-list';
 import { VoiceRecorder } from './voice-recorder';
 
 /**
@@ -26,14 +28,19 @@ import { VoiceRecorder } from './voice-recorder';
  */
 export function CaptureScreen() {
   const t = useTranslations('capture');
+  const tResults = useTranslations('capture.results');
   const tAiStatus = useTranslations('ai.status');
   const locale = useLocale() as Locale;
 
   const [text, setText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  /** `null` until the first successful analysis; drives the results section. */
-  const [tasks, setTasks] = useState<ExtractedTask[] | null>(null);
+  /**
+   * `null` until the first successful analysis. These are unsaved drafts — the
+   * user reviews them and presses save before anything reaches the database.
+   */
+  const [drafts, setDrafts] = useState<DraftItem[] | null>(null);
 
   const { textareaRef } = useAutoResizeTextarea({ value: text });
 
@@ -61,12 +68,12 @@ export function CaptureScreen() {
 
   const trimmedText = text.trim();
   const hasText = trimmedText.length > 0;
-  const isBusy = isProcessing;
+  const isBusy = isProcessing || isSaving;
 
   function handleClear() {
     setText('');
     // Stale results next to an empty textarea would be confusing.
-    setTasks(null);
+    setDrafts(null);
     speech.stop();
     toast.success(t('cleared'));
     textareaRef.current?.focus();
@@ -87,7 +94,9 @@ export function CaptureScreen() {
       const response = await fetch('/api/ai/capture', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: trimmedText, locale }),
+        // The server runs in UTC on Vercel, so "today" has to come from the
+        // browser or relative dates resolve against the wrong day.
+        body: JSON.stringify({ text: trimmedText, locale, today: todayIso() }),
       });
 
       if (!response.ok) {
@@ -104,15 +113,48 @@ export function CaptureScreen() {
         return;
       }
 
-      const body = (await response.json()) as { tasks?: ExtractedTask[] };
+      const body = (await response.json()) as { tasks?: TaskDraft[] };
       const extracted = body.tasks ?? [];
 
-      setTasks(extracted);
+      setDrafts(extracted.map((draft) => ({ ...draft, id: createDraftId() })));
       toast.success(t('processSuccess', { count: extracted.length }));
     } catch {
       toast.error(t('processError'));
     } finally {
       setIsProcessing(false);
+    }
+  }
+
+  function handleRemoveDraft(id: string) {
+    setDrafts((current) => current?.filter((draft) => draft.id !== id) ?? null);
+  }
+
+  function handleChangeDraftDate(id: string, plannedDate: IsoDate | null) {
+    setDrafts(
+      (current) =>
+        current?.map((draft) => (draft.id === id ? { ...draft, plannedDate } : draft)) ?? null,
+    );
+  }
+
+  async function handleSaveDrafts() {
+    if (!drafts || drafts.length === 0) return;
+
+    setIsSaving(true);
+
+    try {
+      // `id` is a client-side handle only; the server assigns the real one.
+      const saved = await createTasks(drafts.map(({ id: _id, ...draft }) => draft));
+
+      toast.success(tResults('saved', { count: saved.length }));
+
+      // The dump has been turned into tasks; clear the slate for the next one.
+      setDrafts(null);
+      setText('');
+      textareaRef.current?.focus();
+    } catch {
+      toast.error(tResults('saveFailed'));
+    } finally {
+      setIsSaving(false);
     }
   }
 
@@ -167,6 +209,7 @@ export function CaptureScreen() {
         <AnimatePresence>
           {speech.interimTranscript ? (
             <motion.p
+              key="interim-transcript"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
@@ -192,6 +235,7 @@ export function CaptureScreen() {
             <AnimatePresence>
               {hasText ? (
                 <motion.span
+                  key="clear-button"
                   initial={{ opacity: 0, scale: 0.96 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.96 }}
@@ -237,7 +281,16 @@ export function CaptureScreen() {
         </p>
       </div>
 
-      {tasks ? <TaskList tasks={tasks} /> : null}
+      {drafts ? (
+        <TaskDraftList
+          drafts={drafts}
+          onRemove={handleRemoveDraft}
+          onChangeDate={handleChangeDraftDate}
+          onSave={handleSaveDrafts}
+          onDiscard={() => setDrafts(null)}
+          isSaving={isSaving}
+        />
+      ) : null}
     </div>
   );
 }

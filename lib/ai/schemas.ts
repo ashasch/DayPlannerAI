@@ -1,9 +1,10 @@
 import { z } from 'zod';
 
-/** Priority buckets the planner sorts by. */
-export const TASK_PRIORITIES = ['high', 'medium', 'low'] as const;
+import { isValidIsoDate } from '@/lib/date';
+import { TASK_PRIORITIES } from '@/lib/tasks/types';
 
-export type TaskPriority = (typeof TASK_PRIORITIES)[number];
+export { TASK_PRIORITIES };
+export type { TaskPriority } from '@/lib/tasks/types';
 
 /**
  * A single task extracted from a brain dump.
@@ -27,6 +28,19 @@ export const extractedTaskSchema = z.object({
     .int()
     .positive()
     .max(60 * 24)
+    .nullish(),
+
+  /**
+   * Day the task is planned for, resolved from phrases like "завтра" or
+   * "в п'ятницю", or `null` when the text implies no particular day.
+   *
+   * Validated as a real calendar date — models happily emit things like
+   * `2026-02-31`, and letting that reach Postgres would fail the insert with an
+   * opaque driver error instead of a clean validation message.
+   */
+  plannedDate: z
+    .string()
+    .refine(isValidIsoDate, { message: 'plannedDate must be a real YYYY-MM-DD date' })
     .nullish(),
 });
 

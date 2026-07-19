@@ -1,3 +1,5 @@
+import type { IsoDate, Task, TaskDraft, TaskPriority } from '@/lib/tasks/types';
+
 /** A persisted user. `passwordHash` is `null` for accounts created via OAuth only. */
 export interface UserRecord {
   id: string;
@@ -52,6 +54,33 @@ export interface UserRepository {
   /** @throws {EmailAlreadyExistsError} When the address is already taken. */
   create(input: CreateUserInput): Promise<UserRecord>;
   updatePasswordHash(userId: string, passwordHash: string): Promise<void>;
+}
+
+/** Fields a caller may change on an existing task. */
+export interface TaskPatch {
+  title?: string;
+  priority?: TaskPriority;
+  category?: string | null;
+  estimatedMinutes?: number | null;
+  plannedDate?: IsoDate | null;
+}
+
+/**
+ * Persistence contract for tasks.
+ *
+ * Every method takes `userId` and filters on it. Ownership is enforced in the
+ * query rather than by a separate "does this belong to you" read, so there is
+ * no window between the check and the write, and a guessed task id simply
+ * matches no rows.
+ */
+export interface TaskRepository {
+  listByUser(userId: string): Promise<Task[]>;
+  /** Tasks with a `plannedDate` inside `[from, to]`, both inclusive. */
+  listByUserInRange(userId: string, from: IsoDate, to: IsoDate): Promise<Task[]>;
+  findById(userId: string, taskId: string): Promise<Task | null>;
+  createMany(userId: string, drafts: TaskDraft[]): Promise<Task[]>;
+  update(userId: string, taskId: string, patch: TaskPatch): Promise<Task | null>;
+  delete(userId: string, taskId: string): Promise<boolean>;
 }
 
 /** Persistence contract for password reset grants. */

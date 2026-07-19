@@ -1,4 +1,6 @@
-import { index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { date, index, integer, pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+
+import { TASK_PRIORITIES } from '@/lib/tasks/types';
 
 /**
  * Database schema (Drizzle ORM).
@@ -46,5 +48,42 @@ export const passwordResetTokens = pgTable(
   ],
 );
 
+export const taskPriority = pgEnum('task_priority', TASK_PRIORITIES);
+
+export const tasks = pgTable(
+  'tasks',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+
+    title: text('title').notNull(),
+    priority: taskPriority('priority').notNull().default('medium'),
+    category: text('category'),
+    estimatedMinutes: integer('estimated_minutes'),
+
+    /**
+     * The day this task is planned for, or `null` when unscheduled.
+     *
+     * A `date` column, not a timestamp: the value is a calendar day, so it must
+     * not shift when the user (or the server) is in another timezone. Drizzle
+     * hands this back as a plain `YYYY-MM-DD` string.
+     */
+    plannedDate: date('planned_date'),
+
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    // Inbox: every task for a user, newest first.
+    index('tasks_user_id_idx').on(table.userId),
+    // Calendar: one user's tasks within a date window.
+    index('tasks_user_id_planned_date_idx').on(table.userId, table.plannedDate),
+  ],
+);
+
 export type UserRow = typeof users.$inferSelect;
 export type PasswordResetTokenRow = typeof passwordResetTokens.$inferSelect;
+export type TaskRow = typeof tasks.$inferSelect;

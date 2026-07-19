@@ -22,8 +22,75 @@
   },
   "nav": {
     "capture": "Capture",
+    "inbox": "Inbox",
+    "calendar": "Calendar",
     "openMenu": "Open menu",
     "account": "Account"
+  },
+  "tasks": {
+    "priority": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "estimate": "{minutes} min",
+    "noDate": "No date",
+    "date": {
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "yesterday": "Yesterday"
+    },
+    "actions": {
+      "setDate": "Set date",
+      "changeDate": "Change date",
+      "clearDate": "Clear date",
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "pickDate": "Pick a date",
+      "delete": "Delete",
+      "edit": "Edit",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "toasts": {
+      "dateUpdated": "Date updated",
+      "dateCleared": "Date cleared",
+      "updated": "Task updated",
+      "deleted": "Task deleted",
+      "updateFailed": "Couldn’t update the task",
+      "deleteFailed": "Couldn’t delete the task"
+    },
+    "details": {
+      "title": "Task details",
+      "titleLabel": "Title",
+      "priorityLabel": "Priority",
+      "categoryLabel": "Category",
+      "dateLabel": "Date"
+    }
+  },
+  "inbox": {
+    "title": "Inbox",
+    "subtitle": "Everything you’ve captured. Give a task a date and it shows up in the calendar.",
+    "empty": "Nothing here yet. Dump what’s on your mind on the Capture screen.",
+    "emptyCta": "Go to Capture",
+    "loadFailed": "Couldn’t load your tasks",
+    "count": "{count} tasks",
+    "scheduled": "Scheduled",
+    "unscheduled": "No date"
+  },
+  "calendar": {
+    "title": "Calendar",
+    "subtitle": "Tasks with a date. Undated ones stay in the Inbox.",
+    "week": "Week",
+    "month": "Month",
+    "previous": "Previous",
+    "next": "Next",
+    "today": "Today",
+    "empty": "No tasks in this period",
+    "loadFailed": "Couldn’t load the calendar",
+    "moreTasks": "{count} more",
+    "weekOf": "Week of {start} — {end}",
+    "dropHint": "Drag a task to another day"
   },
   "auth": {
     "signIn": "Sign in",
@@ -113,14 +180,15 @@
     "processSuccess": "Found {count} tasks",
     "processError": "Couldn’t process the text",
     "results": {
-      "title": "Your tasks",
+      "title": "Tasks found",
+      "hint": "Review and drop anything you don’t want before saving.",
       "empty": "The AI didn’t find any tasks in this text. Try being more specific.",
-      "estimate": "{minutes} min",
-      "priority": {
-        "high": "High",
-        "medium": "Medium",
-        "low": "Low"
-      }
+      "remove": "Remove",
+      "save": "Save to Inbox",
+      "saving": "Saving…",
+      "saved": "Saved {count} tasks",
+      "saveFailed": "Couldn’t save the tasks",
+      "discard": "Discard all"
     },
     "voice": {
       "start": "Start recording",

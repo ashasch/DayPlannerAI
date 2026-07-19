@@ -4,7 +4,8 @@ import {
   PostgresPasswordResetTokenRepository,
   PostgresUserRepository,
 } from './postgres-repository';
-import type { PasswordResetTokenRepository, UserRepository } from './types';
+import { PostgresTaskRepository } from './task-repository';
+import type { PasswordResetTokenRepository, TaskRepository, UserRepository } from './types';
 
 /**
  * Composition root for persistence.
@@ -16,6 +17,7 @@ import type { PasswordResetTokenRepository, UserRepository } from './types';
 export const userRepository: UserRepository = new PostgresUserRepository();
 export const passwordResetTokenRepository: PasswordResetTokenRepository =
   new PostgresPasswordResetTokenRepository();
+export const taskRepository: TaskRepository = new PostgresTaskRepository();
 
 export { normaliseEmail } from './email';
 export { EmailAlreadyExistsError } from './types';

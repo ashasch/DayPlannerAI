@@ -18,7 +18,7 @@ export const DEFAULT_SIGNED_IN_REDIRECT = '/capture';
 export const PUBLIC_AUTH_ROUTES: readonly string[] = Object.values(AUTH_ROUTES);
 
 /** Everything under these prefixes requires an authenticated session. */
-export const PROTECTED_ROUTE_PREFIXES: readonly string[] = ['/capture'];
+export const PROTECTED_ROUTE_PREFIXES: readonly string[] = ['/capture', '/inbox', '/calendar'];
 
 export function isProtectedPath(pathname: string): boolean {
   return PROTECTED_ROUTE_PREFIXES.some(

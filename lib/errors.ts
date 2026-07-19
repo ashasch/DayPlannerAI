@@ -13,6 +13,7 @@ export const ERROR_CODES = {
   /** No `OPENROUTER_API_KEY` — a deployment problem, not an upstream failure. */
   AI_NOT_CONFIGURED: 'aiNotConfigured',
   UNAUTHORIZED: 'unauthorized',
+  NOT_FOUND: 'notFound',
   UNKNOWN: 'unknown',
 } as const;
 
