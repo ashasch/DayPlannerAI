@@ -110,8 +110,18 @@
     "processing": "Аналізуємо…",
     "charactersCount": "{count} символів",
     "emptyWarning": "Спочатку напиши або продиктуй щось",
-    "processSuccess": "Готово — AI на зв’язку. Повний аналіз з’явиться на Етапі 2.",
+    "processSuccess": "Знайдено задач: {count}",
     "processError": "Не вдалося обробити текст",
+    "results": {
+      "title": "Твої задачі",
+      "empty": "AI не знайшов задач у цьому тексті. Спробуй описати конкретніше.",
+      "estimate": "{minutes} хв",
+      "priority": {
+        "high": "Високий",
+        "medium": "Середній",
+        "low": "Низький"
+      }
+    },
     "voice": {
       "start": "Почати запис",
       "pause": "Пауза",
@@ -132,7 +142,7 @@
     "status": {
       "checking": "Перевіряємо з’єднання з AI…",
       "ready": "AI підключено",
-      "notConfigured": "AI не налаштовано — додай ANTHROPIC_API_KEY у .env",
+      "notConfigured": "AI не налаштовано — додай OPENROUTER_API_KEY у .env",
       "unreachable": "AI недоступний"
     }
   }

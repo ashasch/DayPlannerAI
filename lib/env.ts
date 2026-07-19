@@ -12,7 +12,7 @@ import { z } from 'zod';
 /**
  * Treats an empty variable as absent.
  *
- * `.env` files routinely contain placeholder lines like `ANTHROPIC_API_KEY=`,
+ * `.env` files routinely contain placeholder lines like `OPENROUTER_API_KEY=`,
  * which arrive as `''` rather than `undefined` and would otherwise fail a
  * `.min(1)` check instead of falling back to the optional path.
  */
@@ -28,12 +28,16 @@ const serverEnvSchema = z.object({
   /** Auth.js signing secret. Required in production, generated-by-hand locally. */
   AUTH_SECRET: optionalString(),
 
-  /** Anthropic credentials. Optional so the app still boots without AI configured. */
-  ANTHROPIC_API_KEY: optionalString(),
-  ANTHROPIC_MODEL: optionalString().default('claude-sonnet-5'),
+  /**
+   * OpenRouter credentials. Optional so the app still boots without AI configured.
+   *
+   * Named for the actual provider: the key is an OpenRouter key (`sk-or-…`) and
+   * is sent to openrouter.ai, even though the Anthropic SDK is the transport.
+   */
+  OPENROUTER_API_KEY: optionalString(),
 
-  /** Directory backing the local development data store. */
-  DATA_DIR: optionalString().default('.data'),
+  /** Must be an OpenRouter-namespaced model id. */
+  OPENROUTER_MODEL: optionalString().default('anthropic/claude-sonnet-4.5'),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
@@ -47,10 +51,45 @@ if (!parsed.success) {
   throw new Error(`Invalid environment variables:\n${issues.join('\n')}`);
 }
 
-export const env: ServerEnv = parsed.data;
+/**
+ * Postgres connection string.
+ *
+ * Vercel injects `POSTGRES_URL` when you attach a database; `DATABASE_URL` is
+ * the conventional name everywhere else. Accepting either means the same build
+ * runs on Vercel, locally, and in CI without per-environment glue.
+ *
+ * Kept out of the schema above because the resolution order matters and a
+ * missing value needs an actionable message, not a generic Zod issue.
+ */
+function resolveDatabaseUrl(): string {
+  const url = firstNonEmpty(process.env.DATABASE_URL, process.env.POSTGRES_URL);
+
+  if (!url) {
+    throw new Error(
+      'Missing database connection string. Set DATABASE_URL (or POSTGRES_URL) in .env.local.\n' +
+        'On Vercel this is added automatically when a Postgres database is attached;\n' +
+        'locally run `vercel env pull .env.local` or paste the connection string by hand.',
+    );
+  }
+
+  return url;
+}
+
+function firstNonEmpty(...values: (string | undefined)[]): string | undefined {
+  return values.find((value) => typeof value === 'string' && value.trim() !== '');
+}
+
+export const env: ServerEnv & { DATABASE_URL: string } = {
+  ...parsed.data,
+  // Lazily-thrown at import time of any module that touches the database, which
+  // is exactly when a missing URL becomes a real problem.
+  get DATABASE_URL() {
+    return resolveDatabaseUrl();
+  },
+};
 
 export const isProduction = env.NODE_ENV === 'production';
 export const isDevelopment = env.NODE_ENV === 'development';
 
 /** True when an Anthropic key is present; used to render AI state without throwing. */
-export const isAiConfigured = Boolean(env.ANTHROPIC_API_KEY);
+export const isAiConfigured = Boolean(env.OPENROUTER_API_KEY);

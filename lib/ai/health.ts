@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { DEFAULT_MODEL, getAnthropicClient } from './anthropic';
+import { DEFAULT_MODEL, getAiClient } from './client';
 
 export type AiStatus = 'ready' | 'notConfigured' | 'unreachable';
 
@@ -14,17 +14,17 @@ export interface AiHealth {
  *
  * Sends the smallest possible completion rather than just checking that a key
  * exists — a present-but-invalid key should surface as `unreachable`, not
- * `ready`. Stage 2 replaces this with the real brain-dump analysis call.
+ * `ready`. This is exactly what caught the Anthropic-key-on-OpenRouter mismatch.
  */
 export async function checkAiHealth(): Promise<AiHealth> {
-  const anthropic = getAnthropicClient();
+  const client = getAiClient();
 
-  if (!anthropic) {
+  if (!client) {
     return { status: 'notConfigured', model: null };
   }
 
   try {
-    await anthropic.messages.create({
+    await client.messages.create({
       model: DEFAULT_MODEL,
       max_tokens: 4,
       messages: [{ role: 'user', content: 'ping' }],

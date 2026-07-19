@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { auth } from '@/auth';
 import { fail, handleRouteError, ok } from '@/lib/api/responses';
-import { acknowledgeBrainDump } from '@/lib/ai/capture';
+import { analyzeBrainDump } from '@/lib/ai/capture';
 import { ERROR_CODES } from '@/lib/errors';
 import { isAiConfigured } from '@/lib/env';
 import { LOCALES } from '@/lib/i18n/config';
@@ -14,11 +14,10 @@ const captureSchema = z.object({
 });
 
 /**
- * Stage 1 AI endpoint.
+ * Turns a brain dump into a structured task list.
  *
- * Confirms the Anthropic connection works for the signed-in user's brain dump.
- * Stage 2 replaces the body of this handler with real task extraction; the
- * route contract and the client call site stay the same.
+ * Tasks are returned but not yet persisted — storing and scheduling them is
+ * Stage 2 work.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -41,7 +40,7 @@ export async function POST(request: NextRequest) {
       return fail(ERROR_CODES.VALIDATION, 422);
     }
 
-    const result = await acknowledgeBrainDump(parsed.data.text, parsed.data.locale);
+    const result = await analyzeBrainDump(parsed.data.text, parsed.data.locale);
 
     return ok(result);
   } catch (error) {

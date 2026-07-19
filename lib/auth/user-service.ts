@@ -2,8 +2,13 @@ import 'server-only';
 
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 
-import { passwordResetTokenRepository, userRepository, type UserRecord } from '@/lib/db';
-import { normaliseEmail } from '@/lib/db/json-store';
+import {
+  EmailAlreadyExistsError,
+  normaliseEmail,
+  passwordResetTokenRepository,
+  userRepository,
+  type UserRecord,
+} from '@/lib/db';
 import { AppError, ERROR_CODES } from '@/lib/errors';
 import { isProduction } from '@/lib/env';
 import { mailer } from '@/lib/mail/mailer';
@@ -37,17 +42,27 @@ export async function registerUser(input: {
   const email = normaliseEmail(input.email);
   const existing = await userRepository.findByEmail(email);
 
+  // Fast path: answer without spending ~300ms hashing a password we'd discard.
   if (existing) {
     throw new AppError(ERROR_CODES.EMAIL_TAKEN, 409);
   }
 
-  const user = await userRepository.create({
-    email,
-    name: input.name,
-    passwordHash: await hashPassword(input.password),
-  });
+  try {
+    const user = await userRepository.create({
+      email,
+      name: input.name,
+      passwordHash: await hashPassword(input.password),
+    });
 
-  return toPublicUser(user);
+    return toPublicUser(user);
+  } catch (error) {
+    // Two registrations for the same address can both clear the check above;
+    // the unique index is what actually decides, so translate its rejection.
+    if (error instanceof EmailAlreadyExistsError) {
+      throw new AppError(ERROR_CODES.EMAIL_TAKEN, 409);
+    }
+    throw error;
+  }
 }
 
 /**

@@ -9,11 +9,13 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { useAutoResizeTextarea } from '@/hooks/use-auto-resize-textarea';
 import { useSpeechRecognition, type SpeechErrorKey } from '@/hooks/use-speech-recognition';
+import type { ExtractedTask } from '@/lib/ai/schemas';
 import { ERROR_CODES } from '@/lib/errors';
 import { LOCALE_TO_BCP47, type Locale } from '@/lib/i18n/config';
 import { cn } from '@/lib/utils';
 
 import { AiStatusBadge } from './ai-status-badge';
+import { TaskList } from './task-list';
 import { VoiceRecorder } from './voice-recorder';
 
 /**
@@ -29,6 +31,9 @@ export function CaptureScreen() {
 
   const [text, setText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+
+  /** `null` until the first successful analysis; drives the results section. */
+  const [tasks, setTasks] = useState<ExtractedTask[] | null>(null);
 
   const { textareaRef } = useAutoResizeTextarea({ value: text });
 
@@ -60,6 +65,8 @@ export function CaptureScreen() {
 
   function handleClear() {
     setText('');
+    // Stale results next to an empty textarea would be confusing.
+    setTasks(null);
     speech.stop();
     toast.success(t('cleared'));
     textareaRef.current?.focus();
@@ -97,11 +104,11 @@ export function CaptureScreen() {
         return;
       }
 
-      const body = (await response.json()) as { reply?: string };
+      const body = (await response.json()) as { tasks?: ExtractedTask[] };
+      const extracted = body.tasks ?? [];
 
-      toast.success(t('processSuccess'), {
-        description: body.reply || undefined,
-      });
+      setTasks(extracted);
+      toast.success(t('processSuccess', { count: extracted.length }));
     } catch {
       toast.error(t('processError'));
     } finally {
@@ -229,6 +236,8 @@ export function CaptureScreen() {
           {t('charactersCount', { count: text.length })}
         </p>
       </div>
+
+      {tasks ? <TaskList tasks={tasks} /> : null}
     </div>
   );
 }

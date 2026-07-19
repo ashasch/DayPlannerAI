@@ -10,7 +10,7 @@ export const ERROR_CODES = {
   INVALID_TOKEN: 'invalidToken',
   RATE_LIMITED: 'rateLimited',
   VALIDATION: 'validation',
-  /** No `ANTHROPIC_API_KEY` — a deployment problem, not an upstream failure. */
+  /** No `OPENROUTER_API_KEY` — a deployment problem, not an upstream failure. */
   AI_NOT_CONFIGURED: 'aiNotConfigured',
   UNAUTHORIZED: 'unauthorized',
   UNKNOWN: 'unknown',

@@ -26,15 +26,30 @@ export interface PasswordResetTokenRecord {
 }
 
 /**
+ * Raised by `UserRepository.create` when the email is already registered.
+ *
+ * Storage-layer concern deliberately kept out of `lib/errors`: the service
+ * layer translates it into the user-facing `EMAIL_TAKEN` code, so repositories
+ * stay independent of the HTTP/translation vocabulary.
+ */
+export class EmailAlreadyExistsError extends Error {
+  constructor() {
+    super('A user with this email already exists');
+    this.name = 'EmailAlreadyExistsError';
+  }
+}
+
+/**
  * Persistence contract for users.
  *
- * Swapping the file-backed dev store for Prisma/Drizzle/Postgres means writing
- * one new implementation of this interface and changing the factory in
+ * Backed by Postgres via Drizzle. Swapping the engine means writing one new
+ * implementation of this interface and changing the factory in
  * `lib/db/index.ts` — no call site changes.
  */
 export interface UserRepository {
   findByEmail(email: string): Promise<UserRecord | null>;
   findById(id: string): Promise<UserRecord | null>;
+  /** @throws {EmailAlreadyExistsError} When the address is already taken. */
   create(input: CreateUserInput): Promise<UserRecord>;
   updatePasswordHash(userId: string, passwordHash: string): Promise<void>;
 }

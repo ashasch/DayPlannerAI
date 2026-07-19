@@ -110,8 +110,18 @@
     "processing": "Analysing…",
     "charactersCount": "{count} characters",
     "emptyWarning": "Write or dictate something first",
-    "processSuccess": "All set — AI is connected. Full analysis lands in Stage 2.",
+    "processSuccess": "Found {count} tasks",
     "processError": "Couldn’t process the text",
+    "results": {
+      "title": "Your tasks",
+      "empty": "The AI didn’t find any tasks in this text. Try being more specific.",
+      "estimate": "{minutes} min",
+      "priority": {
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      }
+    },
     "voice": {
       "start": "Start recording",
       "pause": "Pause",
@@ -132,7 +142,7 @@
     "status": {
       "checking": "Checking the AI connection…",
       "ready": "AI connected",
-      "notConfigured": "AI isn’t configured — add ANTHROPIC_API_KEY to .env",
+      "notConfigured": "AI isn’t configured — add OPENROUTER_API_KEY to .env",
       "unreachable": "AI is unreachable"
     }
   }
