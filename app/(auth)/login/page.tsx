@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { LoginForm } from '@/features/auth/components/login-form';
 import { SocialProviders } from '@/features/auth/components/social-providers';
 import { AUTH_ROUTES } from '@/lib/auth/routes';
+import { getOAuthProviderStatuses } from '@/lib/auth/oauth-providers';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('auth.login');
@@ -16,6 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function LoginPage() {
   const t = await getTranslations('auth');
+  const providers = getOAuthProviderStatuses();
 
   return (
     <AuthShell
@@ -48,7 +50,7 @@ export default async function LoginPage() {
           </Link>
         </div>
 
-        <SocialProviders />
+        <SocialProviders providers={providers} />
       </div>
     </AuthShell>
   );

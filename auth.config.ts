@@ -13,7 +13,7 @@ import {
  * The middleware runs on the Edge runtime, which cannot load bcrypt or the
  * Node `fs` based store. Keeping the providers array empty here — and adding
  * the real Credentials provider only in `auth.ts` (Node runtime) — is the
- * documented Auth.js split. Adding Google/Apple/GitHub later means pushing an
+ * documented Auth.js split. Adding Google/GitHub later means pushing an
  * OAuth provider into `auth.ts`; nothing in this file has to change.
  */
 export const authConfig = {

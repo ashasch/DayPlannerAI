@@ -14,6 +14,8 @@ export const ERROR_CODES = {
   AI_NOT_CONFIGURED: 'aiNotConfigured',
   UNAUTHORIZED: 'unauthorized',
   NOT_FOUND: 'notFound',
+  /** OAuth provider returned no email, or one it had not verified. */
+  OAUTH_EMAIL_UNVERIFIED: 'oauthEmailUnverified',
   UNKNOWN: 'unknown',
 } as const;
 

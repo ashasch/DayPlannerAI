@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -30,6 +31,28 @@ export function LoginForm() {
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
   });
+
+  /**
+   * Surfaces a failed OAuth round-trip.
+   *
+   * Auth.js sends the user back to `pages.error` (this page) with an `error`
+   * query param. Without this the browser would just land on a pristine login
+   * form, giving no hint that the provider hand-off went wrong.
+   */
+  const oauthError = searchParams.get('error');
+
+  useEffect(() => {
+    if (!oauthError) return;
+
+    // The credentials path renders its own inline error on submit.
+    if (oauthError === 'CredentialsSignin') return;
+
+    toast.error(
+      oauthError === 'AccessDenied'
+        ? t('errors.oauthEmailUnverified')
+        : t('errors.oauthFailed', { provider: 'OAuth' }),
+    );
+  }, [oauthError, t]);
 
   async function onSubmit(values: LoginInput) {
     // `redirect: false` keeps the failure case on this page so the error can be

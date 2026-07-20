@@ -81,6 +81,58 @@ export async function authenticateUser(input: {
   return user && isValid ? toPublicUser(user) : null;
 }
 
+/**
+ * Resolves the local account behind an OAuth sign-in, creating it on first use.
+ *
+ * Accounts are matched on email, which is what makes signing in with GitHub and
+ * later with Google land on the same tasks. That matching is only safe when the
+ * provider actually verified the address: otherwise anyone could register an
+ * OAuth account carrying a victim's email and take over their password account.
+ * Callers must therefore pass `emailVerified` straight from the provider's
+ * profile, and an unverified address is rejected outright.
+ *
+ * @throws {AppError} `OAUTH_EMAIL_UNVERIFIED` when the provider did not confirm
+ * the address, or did not return one at all.
+ */
+export async function findOrCreateOAuthUser(input: {
+  email: string | null | undefined;
+  name: string | null | undefined;
+  emailVerified: boolean;
+}): Promise<PublicUser> {
+  if (!input.email || !input.emailVerified) {
+    throw new AppError(ERROR_CODES.OAUTH_EMAIL_UNVERIFIED, 401);
+  }
+
+  const email = normaliseEmail(input.email);
+  const existing = await userRepository.findByEmail(email);
+
+  if (existing) {
+    return toPublicUser(existing);
+  }
+
+  try {
+    const user = await userRepository.create({
+      email,
+      // Providers do not always supply a display name; fall back to the local
+      // part of the address rather than storing an empty string.
+      name: input.name?.trim() || email.split('@')[0] || email,
+      // No password: this account can only be reached through OAuth until the
+      // user goes through the reset-password flow to set one.
+      passwordHash: null,
+    });
+
+    return toPublicUser(user);
+  } catch (error) {
+    // Two concurrent first-time sign-ins race here; the unique index settles
+    // it and the loser simply reads the row the winner just created.
+    if (error instanceof EmailAlreadyExistsError) {
+      const created = await userRepository.findByEmail(email);
+      if (created) return toPublicUser(created);
+    }
+    throw error;
+  }
+}
+
 /** Tokens are stored hashed; only the raw value ever reaches the user's inbox. */
 function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');

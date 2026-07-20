@@ -1,26 +1,51 @@
 'use client';
 
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { signIn } from 'next-auth/react';
+import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
+import { DEFAULT_SIGNED_IN_REDIRECT } from '@/lib/auth/routes';
+import type { OAuthProviderStatus } from '@/lib/auth/oauth-providers';
+
+interface SocialProvidersProps {
+  /** Resolved server-side, so a button is only live if it can complete. */
+  providers: OAuthProviderStatus[];
+  /** Where to land after a successful sign-in. */
+  callbackUrl?: string;
+}
 
 /**
- * Placeholder row for third-party sign-in.
+ * Third-party sign-in buttons.
  *
- * The buttons are deliberately inert in Stage 1. Wiring one up means adding the
- * provider to `auth.ts` and replacing the click handler with
- * `signIn('<provider>')` — the layout, session shape and routing already
- * accommodate it.
+ * `signIn` performs a full-page redirect to the provider, so there is no
+ * success path to handle here — the browser leaves. The pending state exists
+ * only to stop a second click during the hand-off.
  */
-const PROVIDERS = [
-  { id: 'google', label: 'Google' },
-  { id: 'apple', label: 'Apple' },
-  { id: 'github', label: 'GitHub' },
-] as const;
-
-export function SocialProviders() {
+export function SocialProviders({ providers, callbackUrl }: SocialProvidersProps) {
   const t = useTranslations('auth');
+  const [pendingId, setPendingId] = useState<string | null>(null);
+
+  if (providers.length === 0) return null;
+
+  async function handleSignIn(provider: OAuthProviderStatus) {
+    if (!provider.enabled) {
+      toast.info(t('providerComingSoon', { provider: provider.label }));
+      return;
+    }
+
+    setPendingId(provider.id);
+
+    try {
+      await signIn(provider.id, { redirectTo: callbackUrl ?? DEFAULT_SIGNED_IN_REDIRECT });
+    } catch {
+      // Only reached if the redirect itself fails to start.
+      setPendingId(null);
+      toast.error(t('errors.oauthFailed', { provider: provider.label }));
+    }
+  }
 
   return (
     <div className="space-y-3">
@@ -30,15 +55,19 @@ export function SocialProviders() {
         <span className="h-px flex-1 bg-border" />
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
-        {PROVIDERS.map((provider) => (
+      <div className="grid grid-cols-2 gap-2">
+        {providers.map((provider) => (
           <Button
             key={provider.id}
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => toast.info(t('providerComingSoon', { provider: provider.label }))}
+            disabled={pendingId !== null}
+            onClick={() => handleSignIn(provider)}
           >
+            {pendingId === provider.id ? (
+              <Loader2 className="size-4 animate-spin" aria-hidden />
+            ) : null}
             {provider.label}
           </Button>
         ))}

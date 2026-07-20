@@ -6,6 +6,7 @@ import { AuthShell } from '@/components/layout/auth-shell';
 import { RegisterForm } from '@/features/auth/components/register-form';
 import { SocialProviders } from '@/features/auth/components/social-providers';
 import { AUTH_ROUTES } from '@/lib/auth/routes';
+import { getOAuthProviderStatuses } from '@/lib/auth/oauth-providers';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('auth.register');
@@ -14,6 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function RegisterPage() {
   const t = await getTranslations('auth');
+  const providers = getOAuthProviderStatuses();
 
   return (
     <AuthShell
@@ -33,7 +35,7 @@ export default async function RegisterPage() {
     >
       <div className="space-y-5">
         <RegisterForm />
-        <SocialProviders />
+        <SocialProviders providers={providers} />
       </div>
     </AuthShell>
   );

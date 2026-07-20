@@ -164,6 +164,8 @@
       "emailTaken": "An account with this email already exists",
       "invalidToken": "This link is invalid or has expired",
       "rateLimited": "Too many attempts. Please try again later.",
+      "oauthFailed": "Couldn’t sign in with {provider}",
+      "oauthEmailUnverified": "The email on that account isn’t verified. Verify it with the provider, or sign in with a password.",
       "unknown": "The request failed. Please try again."
     }
   },

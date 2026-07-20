@@ -38,6 +38,17 @@ const serverEnvSchema = z.object({
 
   /** Must be an OpenRouter-namespaced model id. */
   OPENROUTER_MODEL: optionalString().default('anthropic/claude-sonnet-4.5'),
+
+  /**
+   * OAuth credentials. A provider is only registered when BOTH halves are
+   * present — a client id without its secret cannot complete the code
+   * exchange, so half-configured providers are treated as absent rather than
+   * failing at the callback with an opaque error.
+   */
+  GITHUB_CLIENT_ID: optionalString(),
+  GITHUB_CLIENT_SECRET: optionalString(),
+  GOOGLE_CLIENT_ID: optionalString(),
+  GOOGLE_CLIENT_SECRET: optionalString(),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
@@ -93,3 +104,6 @@ export const isDevelopment = env.NODE_ENV === 'development';
 
 /** True when an Anthropic key is present; used to render AI state without throwing. */
 export const isAiConfigured = Boolean(env.OPENROUTER_API_KEY);
+
+export const isGitHubOAuthConfigured = Boolean(env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET);
+export const isGoogleOAuthConfigured = Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET);
