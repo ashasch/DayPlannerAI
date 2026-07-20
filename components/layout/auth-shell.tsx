@@ -16,7 +16,7 @@ interface AuthShellProps {
 /** Centred, mobile-first frame shared by every authentication screen. */
 export function AuthShell({ title, subtitle, children, footer }: AuthShellProps) {
   return (
-    <div className="bg-aurora relative flex min-h-dvh flex-col">
+    <div className="relative flex min-h-dvh flex-col">
       <header className="flex items-center justify-between px-4 py-4 sm:px-6">
         <Link href="/" className="rounded-lg transition-opacity hover:opacity-80">
           <BrandMark />

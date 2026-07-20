@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages, getTranslations } from 'next-intl/server';
 
+import { BackgroundGlow } from '@/components/ui/background-glow';
 import { Toaster } from '@/components/ui/sonner';
 import { AppearanceProvider } from '@/features/theme/appearance-provider';
 import { AppearanceScript, SSR_APPEARANCE } from '@/features/theme/appearance-script';
@@ -56,6 +57,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="min-h-dvh font-sans">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <AppearanceProvider>
+            <BackgroundGlow />
             {children}
             <Toaster />
           </AppearanceProvider>

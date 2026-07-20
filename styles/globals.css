@@ -3,6 +3,24 @@
 @tailwind utilities;
 
 /**
+ * Registering these makes them interpolatable.
+ *
+ * An unregistered custom property animates discretely, so the touch-device
+ * drift below would jump between its two keyframes instead of gliding.
+ */
+@property --mouse-x {
+  syntax: '<length-percentage>';
+  inherits: false;
+  initial-value: 50%;
+}
+
+@property --mouse-y {
+  syntax: '<length-percentage>';
+  inherits: false;
+  initial-value: 35%;
+}
+
+/**
  * Design tokens.
  *
  * Three independent axes, deliberately kept separate:
@@ -26,7 +44,9 @@
     --secondary: 240 5% 96%;
     --secondary-foreground: 240 6% 10%;
     --muted: 240 5% 96%;
-    --muted-foreground: 240 4% 46%;
+    /* 40%, not the usual 46%: secondary text only cleared AA by 0.33 on plain
+       white, and the background glow spends more than that. */
+    --muted-foreground: 240 5% 40%;
     --accent: 240 5% 96%;
     --accent-foreground: 240 6% 10%;
     --destructive: 0 72% 51%;
@@ -48,6 +68,15 @@
     --priority-low: 152 45% 40%;
     --priority-low-foreground: 152 45% 28%;
     --priority-low-muted: 150 45% 94%;
+
+    /* Ambient background glow: violet → wine → aubergine.
+       Deliberately faint on light — the same alpha that reads as atmosphere on
+       near-black washes body text out on white. */
+    --glow-violet: 280 72% 52%;
+    --glow-wine: 342 68% 42%;
+    --glow-aubergine: 295 55% 35%;
+    --glow-spotlight-alpha: 0.05;
+    --glow-ambient-alpha: 0.035;
   }
 
   .dark {
@@ -81,6 +110,12 @@
     --priority-low: 152 45% 50%;
     --priority-low-foreground: 150 50% 65%;
     --priority-low-muted: 152 35% 14%;
+
+    --glow-violet: 276 82% 60%;
+    --glow-wine: 340 72% 45%;
+    --glow-aubergine: 292 62% 38%;
+    --glow-spotlight-alpha: 0.18;
+    --glow-ambient-alpha: 0.13;
   }
 
   /* ---- Accent palettes (light) ---- */
@@ -184,15 +219,70 @@
   }
 }
 
-@layer utilities {
-  /* Subtle radial glow used behind the Capture hero. Tinted by the accent so
-     the auth screens pick up the chosen colour too. */
-  .bg-aurora {
+@layer components {
+  /**
+   * Ambient background glow.
+   *
+   * Lives behind everything (negative z-index) but above the canvas, so it
+   * needs no changes to any screen's markup. `--mouse-x/y` are written by
+   * `BackgroundGlow` on this element only — setting them on :root would
+   * invalidate styles for the entire document on every animation frame.
+   */
+  .background-glow {
+    --mouse-x: 50vw;
+    --mouse-y: 35vh;
+
     background-image:
-      radial-gradient(60rem 30rem at 50% -10%, hsl(var(--primary) / 0.16), transparent 70%),
-      radial-gradient(30rem 20rem at 90% 10%, hsl(var(--primary) / 0.1), transparent 70%);
+      /* Cursor spotlight. */
+      radial-gradient(
+        34rem 34rem at var(--mouse-x) var(--mouse-y),
+        hsl(var(--glow-violet) / var(--glow-spotlight-alpha)),
+        transparent 68%
+      ),
+      /* Static wine and aubergine anchors, so the corners are never dead
+         and touch devices still get a coloured backdrop. */
+        radial-gradient(
+          46rem 30rem at 82% 8%,
+          hsl(var(--glow-wine) / var(--glow-ambient-alpha)),
+          transparent 70%
+        ),
+      radial-gradient(
+        40rem 34rem at 12% 92%,
+        hsl(var(--glow-aubergine) / var(--glow-ambient-alpha)),
+        transparent 72%
+      );
+
+    /* Keep repaints of this large gradient from invalidating anything else. */
+    contain: paint;
   }
 
+  /* Touch devices and reduced-motion users get a slow drift instead of the
+     cursor follow — the anchors breathe, nothing chases anything. */
+  @media (hover: none), (prefers-reduced-motion: reduce) {
+    .background-glow {
+      animation: glow-drift 24s ease-in-out infinite alternate;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .background-glow {
+      animation: none;
+    }
+  }
+
+  @keyframes glow-drift {
+    from {
+      --mouse-x: 30vw;
+      --mouse-y: 25vh;
+    }
+    to {
+      --mouse-x: 70vw;
+      --mouse-y: 55vh;
+    }
+  }
+}
+
+@layer utilities {
   .scrollbar-none {
     scrollbar-width: none;
   }
