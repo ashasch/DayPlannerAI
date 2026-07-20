@@ -7,7 +7,8 @@ import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { fetchTasksInRange, updateTask } from '@/features/tasks/lib/api';
+import { fetchTasksInRange } from '@/features/tasks/lib/api';
+import { useTaskMutations } from '@/features/tasks/lib/use-task-mutations';
 import {
   addDays,
   addMonths,
@@ -35,14 +36,23 @@ export type CalendarMode = 'week' | 'month';
  */
 export function CalendarScreen() {
   const t = useTranslations('calendar');
-  const tToasts = useTranslations('tasks.toasts');
   const locale = useLocale() as Locale;
   const bcp47 = LOCALE_TO_BCP47[locale];
 
   const [mode, setMode] = useState<CalendarMode>('week');
   const [anchor, setAnchor] = useState(() => new Date());
   const [tasks, setTasks] = useState<Task[] | null>(null);
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
+  /**
+   * The dialog tracks an id, not a task object.
+   *
+   * Holding a copy would freeze the dialog on the values it opened with, so
+   * ticking the checkbox inside it would leave the strike-through and the
+   * priority badge showing the old state until it was reopened.
+   */
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+
+  const mutations = useTaskMutations(setTasks);
 
   // The visible window drives the query, so navigating fetches exactly the
   // range on screen instead of pulling every task the user has ever created.
@@ -107,32 +117,10 @@ export function CalendarScreen() {
     [mode],
   );
 
-  /** Moves a task to another day — used by both drag & drop and the dialog. */
-  const moveTask = useCallback(
-    async (task: Task, plannedDate: IsoDate | null) => {
-      if (task.plannedDate === plannedDate) return;
-
-      const previous = task.plannedDate;
-
-      setTasks(
-        (current) =>
-          current?.map((item) => (item.id === task.id ? { ...item, plannedDate } : item)) ?? null,
-      );
-
-      try {
-        await updateTask(task.id, { plannedDate });
-        toast.success(plannedDate ? tToasts('dateUpdated') : tToasts('dateCleared'));
-      } catch {
-        setTasks(
-          (current) =>
-            current?.map((item) =>
-              item.id === task.id ? { ...item, plannedDate: previous } : item,
-            ) ?? null,
-        );
-        toast.error(tToasts('updateFailed'));
-      }
-    },
-    [tToasts],
+  /** Always the live row, so the dialog re-renders as the task changes. */
+  const selectedTask = useMemo(
+    () => tasks?.find((task) => task.id === selectedTaskId) ?? null,
+    [tasks, selectedTaskId],
   );
 
   const periodLabel = useMemo(() => {
@@ -237,25 +225,35 @@ export function CalendarScreen() {
         <WeekView
           days={days}
           tasksByDate={tasksByDate}
-          onSelect={setSelectedTask}
-          onDrop={moveTask}
+          onSelect={(task) => setSelectedTaskId(task.id)}
+          onDrop={(task, date) => void mutations.setPlannedDate(task, date)}
+          onToggleCompleted={(task, completed) => void mutations.setCompleted(task, completed)}
         />
       ) : weeks ? (
         <MonthView
           weeks={weeks}
           anchor={anchor}
           tasksByDate={tasksByDate}
-          onSelect={setSelectedTask}
-          onDrop={moveTask}
+          onSelect={(task) => setSelectedTaskId(task.id)}
+          onDrop={(task, date) => void mutations.setPlannedDate(task, date)}
+          onToggleCompleted={(task, completed) => void mutations.setCompleted(task, completed)}
         />
       ) : null}
 
       <TaskDetailDialog
         task={selectedTask}
-        onClose={() => setSelectedTask(null)}
+        onClose={() => setSelectedTaskId(null)}
+        onToggleCompleted={(completed) => {
+          if (selectedTask) void mutations.setCompleted(selectedTask, completed);
+        }}
+        onChangePriority={(priority) => {
+          if (selectedTask) void mutations.setPriority(selectedTask, priority);
+        }}
         onChangeDate={(date) => {
-          if (selectedTask) void moveTask(selectedTask, date);
-          setSelectedTask(null);
+          if (selectedTask) void mutations.setPlannedDate(selectedTask, date);
+          // The task may move outside the loaded window, leaving the dialog
+          // pointing at a row that is no longer here.
+          setSelectedTaskId(null);
         }}
       />
     </div>

@@ -17,13 +17,21 @@ interface MonthViewProps {
   tasksByDate: Map<IsoDate, Task[]>;
   onSelect: (task: Task) => void;
   onDrop: (task: Task, date: IsoDate) => void;
+  onToggleCompleted: (task: Task, completed: boolean) => void;
 }
 
 /** Tasks shown per day before collapsing into a "+N more" counter. */
 const MAX_VISIBLE_PER_DAY = 3;
 
 /** A six-week month grid with a compact task list in each day. */
-export function MonthView({ weeks, anchor, tasksByDate, onSelect, onDrop }: MonthViewProps) {
+export function MonthView({
+  weeks,
+  anchor,
+  tasksByDate,
+  onSelect,
+  onDrop,
+  onToggleCompleted,
+}: MonthViewProps) {
   const t = useTranslations('calendar');
   const locale = useLocale() as Locale;
   const bcp47 = LOCALE_TO_BCP47[locale];
@@ -94,9 +102,9 @@ export function MonthView({ weeks, anchor, tasksByDate, onSelect, onDrop }: Mont
                   {visible.map((task) => (
                     <CalendarTaskChip
                       key={task.id}
-                      title={task.title}
-                      priority={task.priority}
-                      onClick={() => onSelect(task)}
+                      task={task}
+                      onOpen={() => onSelect(task)}
+                      onToggleCompleted={(completed) => onToggleCompleted(task, completed)}
                       dragProps={getTaskDragProps(task)}
                       isDragging={draggedTask?.id === task.id}
                     />

@@ -63,6 +63,7 @@ export interface TaskPatch {
   category?: string | null;
   estimatedMinutes?: number | null;
   plannedDate?: IsoDate | null;
+  completed?: boolean;
 }
 
 /**

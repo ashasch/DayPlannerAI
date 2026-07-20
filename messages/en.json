@@ -50,11 +50,17 @@
       "delete": "Delete",
       "edit": "Edit",
       "save": "Save",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "complete": "Mark as done",
+      "reopen": "Reopen task",
+      "changePriority": "Change priority"
     },
     "toasts": {
       "dateUpdated": "Date updated",
       "dateCleared": "Date cleared",
+      "completed": "Task completed",
+      "reopened": "Task reopened",
+      "priorityUpdated": "Priority updated",
       "updated": "Task updated",
       "deleted": "Task deleted",
       "updateFailed": "Couldn’t update the task",

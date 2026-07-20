@@ -46,6 +46,7 @@ export const updateTaskSchema = z
     category: category.optional(),
     estimatedMinutes: estimatedMinutes.optional(),
     plannedDate: plannedDate.optional(),
+    completed: z.boolean().optional(),
   })
   .refine((patch) => Object.keys(patch).length > 0, {
     message: 'Patch must contain at least one field',

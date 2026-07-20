@@ -16,6 +16,7 @@ interface WeekViewProps {
   tasksByDate: Map<IsoDate, Task[]>;
   onSelect: (task: Task) => void;
   onDrop: (task: Task, date: IsoDate) => void;
+  onToggleCompleted: (task: Task, completed: boolean) => void;
 }
 
 /**
@@ -25,7 +26,13 @@ interface WeekViewProps {
  * the whole point of the week view is seeing the days side by side, and a
  * stacked version would just be the Inbox again.
  */
-export function WeekView({ days, tasksByDate, onSelect, onDrop }: WeekViewProps) {
+export function WeekView({
+  days,
+  tasksByDate,
+  onSelect,
+  onDrop,
+  onToggleCompleted,
+}: WeekViewProps) {
   const t = useTranslations('calendar');
   const locale = useLocale() as Locale;
   const bcp47 = LOCALE_TO_BCP47[locale];
@@ -73,9 +80,9 @@ export function WeekView({ days, tasksByDate, onSelect, onDrop }: WeekViewProps)
                 {dayTasks.map((task) => (
                   <CalendarTaskChip
                     key={task.id}
-                    title={task.title}
-                    priority={task.priority}
-                    onClick={() => onSelect(task)}
+                    task={task}
+                    onOpen={() => onSelect(task)}
+                    onToggleCompleted={(completed) => onToggleCompleted(task, completed)}
                     dragProps={getTaskDragProps(task)}
                     isDragging={draggedTask?.id === task.id}
                   />

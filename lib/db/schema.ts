@@ -1,4 +1,14 @@
-import { date, index, integer, pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import {
+  boolean,
+  date,
+  index,
+  integer,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from 'drizzle-orm/pg-core';
 
 import { TASK_PRIORITIES } from '@/lib/tasks/types';
 
@@ -72,6 +82,9 @@ export const tasks = pgTable(
      * hands this back as a plain `YYYY-MM-DD` string.
      */
     plannedDate: date('planned_date'),
+
+    /** Done tasks stay visible everywhere — they are dimmed, never filtered out. */
+    completed: boolean('completed').notNull().default(false),
 
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),

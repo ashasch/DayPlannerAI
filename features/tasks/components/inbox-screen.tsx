@@ -9,8 +9,9 @@ import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { deleteTask, fetchTasks, updateTask } from '@/features/tasks/lib/api';
-import type { IsoDate, Task } from '@/lib/tasks/types';
+import { fetchTasks } from '@/features/tasks/lib/api';
+import { useTaskMutations } from '@/features/tasks/lib/use-task-mutations';
+import type { Task } from '@/lib/tasks/types';
 
 import { PRIORITY_RANK } from './priority-badge';
 import { TaskCard } from './task-card';
@@ -18,17 +19,16 @@ import { TaskCard } from './task-card';
 /**
  * The Inbox: every saved task, scheduled or not.
  *
- * Rescheduling and deletion apply optimistically and roll back on failure —
- * these are single-field edits where waiting on a round trip makes the list
- * feel sluggish, and the failure path is a toast plus the old value returning.
+ * Edits (completion, priority, date, delete) go through `useTaskMutations`,
+ * which the Calendar uses too — so both screens behave identically and there is
+ * one place to change how optimistic updates and rollbacks work.
  */
 export function InboxScreen() {
   const t = useTranslations('inbox');
-  const tToasts = useTranslations('tasks.toasts');
-
   const [tasks, setTasks] = useState<Task[] | null>(null);
   const [hasError, setHasError] = useState(false);
-  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
+
+  const mutations = useTaskMutations(setTasks);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -45,54 +45,6 @@ export function InboxScreen() {
 
     return () => controller.abort();
   }, [t]);
-
-  function markPending(id: string, pending: boolean) {
-    setPendingIds((current) => {
-      const next = new Set(current);
-      if (pending) next.add(id);
-      else next.delete(id);
-      return next;
-    });
-  }
-
-  async function handleChangeDate(task: Task, plannedDate: IsoDate | null) {
-    const previous = task.plannedDate;
-
-    setTasks(
-      (current) =>
-        current?.map((item) => (item.id === task.id ? { ...item, plannedDate } : item)) ?? null,
-    );
-    markPending(task.id, true);
-
-    try {
-      await updateTask(task.id, { plannedDate });
-      toast.success(plannedDate ? tToasts('dateUpdated') : tToasts('dateCleared'));
-    } catch {
-      setTasks(
-        (current) =>
-          current?.map((item) =>
-            item.id === task.id ? { ...item, plannedDate: previous } : item,
-          ) ?? null,
-      );
-      toast.error(tToasts('updateFailed'));
-    } finally {
-      markPending(task.id, false);
-    }
-  }
-
-  async function handleDelete(task: Task) {
-    const snapshot = tasks;
-
-    setTasks((current) => current?.filter((item) => item.id !== task.id) ?? null);
-
-    try {
-      await deleteTask(task.id);
-      toast.success(tToasts('deleted'));
-    } catch {
-      setTasks(snapshot);
-      toast.error(tToasts('deleteFailed'));
-    }
-  }
 
   if (hasError && !tasks) {
     return (
@@ -171,9 +123,12 @@ export function InboxScreen() {
                     >
                       <TaskCard
                         task={task}
-                        isPending={pendingIds.has(task.id)}
-                        onChangeDate={(date) => handleChangeDate(task, date)}
-                        onDelete={() => handleDelete(task)}
+                        onToggleCompleted={(completed) =>
+                          void mutations.setCompleted(task, completed)
+                        }
+                        onChangePriority={(priority) => void mutations.setPriority(task, priority)}
+                        onChangeDate={(date) => void mutations.setPlannedDate(task, date)}
+                        onDelete={() => void mutations.remove(task)}
                       />
                     </motion.li>
                   ))}

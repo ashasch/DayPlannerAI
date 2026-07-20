@@ -27,6 +27,7 @@ export interface Task {
   estimatedMinutes: number | null;
   /** `null` means unscheduled — it lives in the Inbox but not the calendar. */
   plannedDate: IsoDate | null;
+  completed: boolean;
   createdAt: string;
   updatedAt: string;
 }

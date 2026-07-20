@@ -54,7 +54,7 @@ export async function createTasks(drafts: TaskDraft[]): Promise<Task[]> {
 export async function updateTask(
   taskId: string,
   patch: Partial<
-    Pick<Task, 'title' | 'priority' | 'category' | 'estimatedMinutes' | 'plannedDate'>
+    Pick<Task, 'title' | 'priority' | 'category' | 'estimatedMinutes' | 'plannedDate' | 'completed'>
   >,
 ): Promise<Task> {
   const { task } = await request<{ task: Task }>(`/api/tasks/${taskId}`, {

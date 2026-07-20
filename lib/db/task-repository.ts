@@ -16,6 +16,7 @@ function toTask(row: TaskRow): Task {
     category: row.category,
     estimatedMinutes: row.estimatedMinutes,
     plannedDate: row.plannedDate,
+    completed: row.completed,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };

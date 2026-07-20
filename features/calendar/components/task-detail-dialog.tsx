@@ -6,16 +6,20 @@ import { motion } from 'framer-motion';
 import { Clock, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { PriorityBadge } from '@/features/tasks/components/priority-badge';
+import { PriorityPicker } from '@/features/tasks/components/priority-badge';
+import { TaskCheckbox } from '@/features/tasks/components/task-checkbox';
 import { TaskDateBadge } from '@/features/tasks/components/task-date-badge';
 import { TaskDatePicker } from '@/features/tasks/components/task-date-picker';
-import type { IsoDate, Task } from '@/lib/tasks/types';
+import type { IsoDate, Task, TaskPriority } from '@/lib/tasks/types';
+import { cn } from '@/lib/utils';
 
 interface TaskDetailDialogProps {
   /** `null` closes the dialog. */
   task: Task | null;
   onClose: () => void;
   onChangeDate: (date: IsoDate | null) => void;
+  onToggleCompleted: (completed: boolean) => void;
+  onChangePriority: (priority: TaskPriority) => void;
 }
 
 /**
@@ -25,7 +29,13 @@ interface TaskDetailDialogProps {
  * pointer-only, so this dialog (and the Inbox picker) is how the same action
  * stays reachable without a mouse.
  */
-export function TaskDetailDialog({ task, onClose, onChangeDate }: TaskDetailDialogProps) {
+export function TaskDetailDialog({
+  task,
+  onClose,
+  onChangeDate,
+  onToggleCompleted,
+  onChangePriority,
+}: TaskDetailDialogProps) {
   const t = useTranslations('tasks.details');
   const tActions = useTranslations('tasks.actions');
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -77,7 +87,21 @@ export function TaskDetailDialog({ task, onClose, onChangeDate }: TaskDetailDial
         onClick={(event) => event.stopPropagation()}
       >
         <div className="mb-4 flex items-start justify-between gap-3">
-          <h2 className="text-pretty text-base font-medium leading-snug">{task.title}</h2>
+          <div className="flex min-w-0 items-start gap-2.5">
+            <TaskCheckbox
+              completed={task.completed}
+              onToggle={onToggleCompleted}
+              className="mt-1"
+            />
+            <h2
+              className={cn(
+                'text-pretty text-base font-medium leading-snug',
+                task.completed && 'text-muted-foreground line-through',
+              )}
+            >
+              {task.title}
+            </h2>
+          </div>
 
           <Button
             ref={closeRef}
@@ -96,7 +120,7 @@ export function TaskDetailDialog({ task, onClose, onChangeDate }: TaskDetailDial
           <div className="flex items-center justify-between gap-3">
             <dt className="text-muted-foreground">{t('priorityLabel')}</dt>
             <dd>
-              <PriorityBadge priority={task.priority} />
+              <PriorityPicker priority={task.priority} onChange={onChangePriority} />
             </dd>
           </div>
 
