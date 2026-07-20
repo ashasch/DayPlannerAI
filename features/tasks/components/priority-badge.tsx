@@ -14,11 +14,26 @@ import {
 import { TASK_PRIORITIES, type TaskPriority } from '@/lib/tasks/types';
 import { cn } from '@/lib/utils';
 
-/** Visual weight per priority — high reads as urgent without shouting. */
-const PRIORITY_STYLES: Record<TaskPriority, string> = {
-  high: 'border-destructive/40 bg-destructive/10 text-destructive',
-  medium: 'border-border bg-secondary text-secondary-foreground',
-  low: 'border-border bg-transparent text-muted-foreground',
+/**
+ * Priority styling, in one place.
+ *
+ * Every surface that shows a priority — badge, card stripe, calendar chip —
+ * pulls from here, so the hues cannot drift apart. The tokens behind these
+ * classes are defined per theme in `globals.css` and are independent of the
+ * accent colour: "high" must keep reading as urgent even if the user picks a
+ * red accent.
+ */
+export const PRIORITY_STYLES: Record<TaskPriority, string> = {
+  high: 'border-priority-high/40 bg-priority-high-muted text-priority-high-foreground',
+  medium: 'border-priority-medium/40 bg-priority-medium-muted text-priority-medium-foreground',
+  low: 'border-priority-low/40 bg-priority-low-muted text-priority-low-foreground',
+};
+
+/** Solid hue for stripes and dots, where there is no text to contrast with. */
+export const PRIORITY_ACCENT_BORDER: Record<TaskPriority, string> = {
+  high: 'border-l-priority-high',
+  medium: 'border-l-priority-medium',
+  low: 'border-l-priority-low',
 };
 
 /** Sort order so the day's most important work surfaces first. */

@@ -1,9 +1,9 @@
 'use client';
 
-import { useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 import { signOut } from 'next-auth/react';
-import { Loader2, LogOut, User } from 'lucide-react';
+import { Loader2, LogOut, Settings, User } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -14,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { SettingsDialog } from '@/features/theme/components/settings-dialog';
 import { AUTH_ROUTES } from '@/lib/auth/routes';
 
 interface UserMenuProps {
@@ -25,7 +26,9 @@ interface UserMenuProps {
 export function UserMenu({ name, email }: UserMenuProps) {
   const t = useTranslations('auth');
   const tNav = useTranslations('nav');
+  const tAppearance = useTranslations('appearance');
   const [isPending, startTransition] = useTransition();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const initial = (name.trim()[0] ?? email[0] ?? '?').toUpperCase();
 
@@ -63,11 +66,20 @@ export function UserMenu({ name, email }: UserMenuProps) {
 
         <DropdownMenuSeparator />
 
+        <DropdownMenuItem onSelect={() => setIsSettingsOpen(true)}>
+          <Settings className="size-4" aria-hidden />
+          <span>{tAppearance('open')}</span>
+        </DropdownMenuItem>
+
+        <DropdownMenuSeparator />
+
         <DropdownMenuItem onSelect={handleSignOut} disabled={isPending}>
           <LogOut className="size-4" aria-hidden />
           <span>{t('signOut')}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
+
+      <SettingsDialog open={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </DropdownMenu>
   );
 }

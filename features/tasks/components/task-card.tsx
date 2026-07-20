@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import type { IsoDate, Task, TaskPriority } from '@/lib/tasks/types';
 import { cn } from '@/lib/utils';
 
-import { PriorityPicker } from './priority-badge';
+import { PRIORITY_ACCENT_BORDER, PriorityPicker } from './priority-badge';
 import { TaskCheckbox } from './task-checkbox';
 import { TaskDateBadge } from './task-date-badge';
 import { TaskDatePicker } from './task-date-picker';
@@ -42,6 +42,9 @@ export function TaskCard({
     <div
       className={cn(
         'flex items-start gap-3 rounded-xl border border-border bg-card px-4 py-3 transition-opacity',
+        // Left stripe carries priority at a glance, without reading the badge.
+        'border-l-4',
+        PRIORITY_ACCENT_BORDER[task.priority],
         // Done tasks stay in the list, just visually receded. (60 not 55:
         // Tailwind's default opacity scale has no 55, so it emits no CSS.)
         task.completed && 'opacity-60',

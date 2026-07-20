@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 
 import { BrandMark } from '@/components/layout/brand-mark';
 import { LanguageSwitcher } from '@/features/i18n/components/language-switcher';
+import { ThemeToggle } from '@/features/theme/components/theme-toggle';
 
 interface AuthShellProps {
   title: string;
@@ -20,7 +21,10 @@ export function AuthShell({ title, subtitle, children, footer }: AuthShellProps)
         <Link href="/" className="rounded-lg transition-opacity hover:opacity-80">
           <BrandMark />
         </Link>
-        <LanguageSwitcher />
+        <div className="flex items-center gap-1">
+          <ThemeToggle />
+          <LanguageSwitcher />
+        </div>
       </header>
 
       <main className="flex flex-1 items-center justify-center px-4 pb-16 pt-4 sm:px-6">

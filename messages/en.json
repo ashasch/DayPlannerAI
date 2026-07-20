@@ -20,6 +20,27 @@
     "changed": "Language switched to English",
     "changeFailed": "Couldn’t switch the language"
   },
+  "appearance": {
+    "title": "Settings",
+    "subtitle": "Theme and accent colour. Saved on this device.",
+    "close": "Close",
+    "open": "Settings",
+    "themeLabel": "Theme",
+    "accentLabel": "Accent colour",
+    "switchToLight": "Switch to light theme",
+    "switchToDark": "Switch to dark theme",
+    "theme": {
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "accent": {
+      "violet": "Violet",
+      "blue": "Blue",
+      "green": "Green",
+      "orange": "Orange",
+      "pink": "Pink"
+    }
+  },
   "nav": {
     "capture": "Capture",
     "inbox": "Inbox",

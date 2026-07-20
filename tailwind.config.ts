@@ -32,6 +32,24 @@ const config: Config = {
         primary: {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
+          /** Tinted surface for active nav items and other soft accent fills. */
+          muted: 'hsl(var(--primary-muted))',
+        },
+        /**
+         * Priority hues. Deliberately their own scale rather than reusing
+         * `destructive`/`secondary`, so changing the accent (or the meaning of
+         * "destructive") can never repaint what a priority looks like.
+         */
+        priority: {
+          high: 'hsl(var(--priority-high))',
+          'high-foreground': 'hsl(var(--priority-high-foreground))',
+          'high-muted': 'hsl(var(--priority-high-muted))',
+          medium: 'hsl(var(--priority-medium))',
+          'medium-foreground': 'hsl(var(--priority-medium-foreground))',
+          'medium-muted': 'hsl(var(--priority-medium-muted))',
+          low: 'hsl(var(--priority-low))',
+          'low-foreground': 'hsl(var(--priority-low-foreground))',
+          'low-muted': 'hsl(var(--priority-low-muted))',
         },
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',

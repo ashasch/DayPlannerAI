@@ -31,7 +31,7 @@ export function MainNav({ className }: { className?: string }) {
             className={cn(
               'flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm transition-colors sm:px-3',
               isActive
-                ? 'bg-secondary text-secondary-foreground'
+                ? 'bg-primary-muted font-medium text-primary'
                 : 'text-muted-foreground hover:text-foreground',
             )}
           >

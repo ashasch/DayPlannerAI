@@ -1,16 +1,9 @@
 'use client';
 
+import { PRIORITY_ACCENT_BORDER } from '@/features/tasks/components/priority-badge';
 import { TaskCheckbox } from '@/features/tasks/components/task-checkbox';
 import type { Task } from '@/lib/tasks/types';
 import { cn } from '@/lib/utils';
-import type { TaskPriority } from '@/lib/tasks/types';
-
-/** Left border colour carries priority without spending horizontal space. */
-const PRIORITY_ACCENT: Record<TaskPriority, string> = {
-  high: 'border-l-destructive',
-  medium: 'border-l-foreground/40',
-  low: 'border-l-border',
-};
 
 interface CalendarTaskChipProps {
   task: Task;
@@ -41,7 +34,7 @@ export function CalendarTaskChip({
       className={cn(
         'flex w-full cursor-grab items-center gap-1 rounded-md border-l-2 bg-secondary/60 px-1.5 py-1',
         'transition-colors hover:bg-secondary active:cursor-grabbing',
-        PRIORITY_ACCENT[task.priority],
+        PRIORITY_ACCENT_BORDER[task.priority],
         task.completed && 'opacity-60',
         isDragging && 'opacity-40',
         className,

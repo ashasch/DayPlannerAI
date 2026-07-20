@@ -4,6 +4,9 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages, getTranslations } from 'next-intl/server';
 
 import { Toaster } from '@/components/ui/sonner';
+import { AppearanceProvider } from '@/features/theme/appearance-provider';
+import { AppearanceScript, SSR_APPEARANCE } from '@/features/theme/appearance-script';
+import { DEFAULT_THEME, THEME_BROWSER_COLORS } from '@/lib/theme/config';
 import '@/styles/globals.css';
 
 const inter = Inter({
@@ -25,7 +28,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#111113',
+  themeColor: THEME_BROWSER_COLORS[DEFAULT_THEME],
   width: 'device-width',
   initialScale: 1,
   // The Capture textarea grows a lot; let people zoom out to see it all.
@@ -39,11 +42,23 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const messages = await getMessages();
 
   return (
-    <html lang={locale} className={`dark ${inter.variable}`} suppressHydrationWarning>
+    <html
+      lang={locale}
+      // Defaults for SSR and for JS-disabled browsers; AppearanceScript
+      // corrects them from localStorage before the first paint.
+      className={`${SSR_APPEARANCE.className} ${inter.variable}`}
+      data-accent={SSR_APPEARANCE.accent}
+      suppressHydrationWarning
+    >
+      <head>
+        <AppearanceScript />
+      </head>
       <body className="min-h-dvh font-sans">
         <NextIntlClientProvider locale={locale} messages={messages}>
-          {children}
-          <Toaster />
+          <AppearanceProvider>
+            {children}
+            <Toaster />
+          </AppearanceProvider>
         </NextIntlClientProvider>
       </body>
     </html>

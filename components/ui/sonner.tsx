@@ -2,16 +2,20 @@
 
 import { Toaster as SonnerToaster } from 'sonner';
 
+import { useAppearance } from '@/features/theme/appearance-provider';
+
 /**
  * Global toast host.
  *
- * Styled through the app's design tokens so toasts match the dark shell rather
- * than shipping Sonner's default light theme.
+ * Styled through the app's design tokens, and told the active theme so Sonner's
+ * own base styles do not fight them when the user switches to light.
  */
 export function Toaster() {
+  const { theme } = useAppearance();
+
   return (
     <SonnerToaster
-      theme="dark"
+      theme={theme}
       position="top-center"
       richColors={false}
       closeButton

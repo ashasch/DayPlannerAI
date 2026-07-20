@@ -2,17 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+/**
+ * Design tokens.
+ *
+ * Three independent axes, deliberately kept separate:
+ *   1. light / dark        → `.dark` class on <html>
+ *   2. accent colour       → `data-accent` attribute on <html>
+ *   3. priority colours    → fixed semantic hues, never follow the accent
+ *
+ * Cascade order matters. `:root`, `.dark` and `[data-accent]` all have the same
+ * specificity, so the accent blocks must come after the base ones, and the dark
+ * accent blocks use `.dark[data-accent]` to outrank the light ones.
+ */
+
 @layer base {
   :root {
-    /* Light theme is defined for completeness; the app ships dark-first. */
     --background: 0 0% 100%;
     --foreground: 240 10% 4%;
     --card: 0 0% 100%;
     --card-foreground: 240 10% 4%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 4%;
-    --primary: 240 6% 10%;
-    --primary-foreground: 0 0% 98%;
     --secondary: 240 5% 96%;
     --secondary-foreground: 240 6% 10%;
     --muted: 240 5% 96%;
@@ -23,8 +33,21 @@
     --destructive-foreground: 0 0% 98%;
     --border: 240 6% 90%;
     --input: 240 6% 90%;
-    --ring: 240 5% 65%;
     --radius: 0.75rem;
+
+    /* Priority hues — independent of the accent so "high" never stops
+       reading as urgent just because someone picked a red accent. */
+    --priority-high: 0 72% 45%;
+    --priority-high-foreground: 0 72% 38%;
+    --priority-high-muted: 0 85% 96%;
+
+    --priority-medium: 38 92% 45%;
+    --priority-medium-foreground: 32 90% 32%;
+    --priority-medium-muted: 45 96% 92%;
+
+    --priority-low: 152 45% 40%;
+    --priority-low-foreground: 152 45% 28%;
+    --priority-low-muted: 150 45% 94%;
   }
 
   .dark {
@@ -34,8 +57,6 @@
     --card-foreground: 0 0% 96%;
     --popover: 240 6% 10%;
     --popover-foreground: 0 0% 96%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 6% 10%;
     --secondary: 240 4% 14%;
     --secondary-foreground: 0 0% 96%;
     --muted: 240 4% 14%;
@@ -46,7 +67,98 @@
     --destructive-foreground: 0 0% 98%;
     --border: 240 4% 16%;
     --input: 240 4% 18%;
-    --ring: 240 5% 40%;
+
+    /* Lighter, less saturated on dark: the same values that pass contrast on
+       white turn into unreadable mud on a near-black card. */
+    --priority-high: 0 75% 60%;
+    --priority-high-foreground: 0 85% 74%;
+    --priority-high-muted: 0 55% 17%;
+
+    --priority-medium: 40 90% 55%;
+    --priority-medium-foreground: 42 95% 67%;
+    --priority-medium-muted: 38 55% 15%;
+
+    --priority-low: 152 45% 50%;
+    --priority-low-foreground: 150 50% 65%;
+    --priority-low-muted: 152 35% 14%;
+  }
+
+  /* ---- Accent palettes (light) ---- */
+
+  [data-accent='violet'] {
+    --primary: 262 83% 58%;
+    --primary-foreground: 0 0% 100%;
+    --primary-muted: 262 83% 95%;
+    --ring: 262 83% 58%;
+  }
+
+  /* Lightness on these is set by contrast, not by taste: white button text
+     needs 4.5:1 for WCAG AA, and the "natural" bright green/orange/pink all
+     measured below that before being darkened. */
+
+  [data-accent='blue'] {
+    --primary: 217 91% 48%;
+    --primary-foreground: 0 0% 100%;
+    --primary-muted: 214 95% 95%;
+    --ring: 217 91% 48%;
+  }
+
+  [data-accent='green'] {
+    --primary: 152 62% 28%;
+    --primary-foreground: 0 0% 100%;
+    --primary-muted: 150 60% 94%;
+    --ring: 152 62% 28%;
+  }
+
+  [data-accent='orange'] {
+    --primary: 22 92% 37%;
+    --primary-foreground: 0 0% 100%;
+    --primary-muted: 30 95% 94%;
+    --ring: 22 92% 37%;
+  }
+
+  [data-accent='pink'] {
+    --primary: 335 80% 42%;
+    --primary-foreground: 0 0% 100%;
+    --primary-muted: 335 85% 95%;
+    --ring: 335 80% 42%;
+  }
+
+  /* ---- Accent palettes (dark) ---- */
+
+  .dark[data-accent='violet'] {
+    --primary: 263 75% 68%;
+    --primary-foreground: 263 45% 11%;
+    --primary-muted: 263 40% 20%;
+    --ring: 263 75% 68%;
+  }
+
+  .dark[data-accent='blue'] {
+    --primary: 213 88% 66%;
+    --primary-foreground: 213 55% 11%;
+    --primary-muted: 213 45% 20%;
+    --ring: 213 88% 66%;
+  }
+
+  .dark[data-accent='green'] {
+    --primary: 152 55% 55%;
+    --primary-foreground: 152 50% 9%;
+    --primary-muted: 152 35% 17%;
+    --ring: 152 55% 55%;
+  }
+
+  .dark[data-accent='orange'] {
+    --primary: 27 90% 60%;
+    --primary-foreground: 25 60% 10%;
+    --primary-muted: 27 45% 18%;
+    --ring: 27 90% 60%;
+  }
+
+  .dark[data-accent='pink'] {
+    --primary: 335 80% 68%;
+    --primary-foreground: 335 50% 11%;
+    --primary-muted: 335 40% 20%;
+    --ring: 335 80% 68%;
   }
 }
 
@@ -73,11 +185,12 @@
 }
 
 @layer utilities {
-  /* Subtle radial glow used behind the Capture hero. */
+  /* Subtle radial glow used behind the Capture hero. Tinted by the accent so
+     the auth screens pick up the chosen colour too. */
   .bg-aurora {
     background-image:
-      radial-gradient(60rem 30rem at 50% -10%, hsl(240 6% 16% / 0.9), transparent 70%),
-      radial-gradient(30rem 20rem at 90% 10%, hsl(260 40% 20% / 0.35), transparent 70%);
+      radial-gradient(60rem 30rem at 50% -10%, hsl(var(--primary) / 0.16), transparent 70%),
+      radial-gradient(30rem 20rem at 90% 10%, hsl(var(--primary) / 0.1), transparent 70%);
   }
 
   .scrollbar-none {

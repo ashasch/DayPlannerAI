@@ -4,6 +4,7 @@ import { BrandMark } from '@/components/layout/brand-mark';
 import { MainNav } from '@/components/layout/main-nav';
 import { UserMenu } from '@/features/auth/components/user-menu';
 import { LanguageSwitcher } from '@/features/i18n/components/language-switcher';
+import { ThemeToggle } from '@/features/theme/components/theme-toggle';
 import { DEFAULT_SIGNED_IN_REDIRECT } from '@/lib/auth/routes';
 
 interface AppHeaderProps {
@@ -32,6 +33,7 @@ export function AppHeader({ user }: AppHeaderProps) {
         </div>
 
         <div className="flex shrink-0 items-center gap-1">
+          <ThemeToggle />
           <LanguageSwitcher />
           <UserMenu name={user.name} email={user.email} />
         </div>
