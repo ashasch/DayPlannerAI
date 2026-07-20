@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Check, Clock, X } from 'lucide-react';
 import { toast } from 'sonner';
@@ -24,13 +24,35 @@ interface TaskEstimatePickerProps {
   className?: string;
 }
 
+/** Parses a custom entry, or `null` when it is not a usable estimate. */
+function parseEstimate(raw: string): number | null {
+  const trimmed = raw.trim();
+  if (trimmed === '') return null;
+
+  const parsed = Number(trimmed);
+
+  if (
+    !Number.isFinite(parsed) ||
+    !Number.isInteger(parsed) ||
+    parsed < MIN_ESTIMATE_MINUTES ||
+    parsed > MAX_ESTIMATE_MINUTES
+  ) {
+    return null;
+  }
+
+  return parsed;
+}
+
 /**
- * Shows the time estimate and lets it be edited in place.
+ * Shows the time estimate and lets it be edited.
  *
- * Presets cover almost every case; the custom input swaps the trigger for a
- * number field rather than living inside the dropdown, because a focusable
- * input inside a Radix menu fights the menu's own focus management and closes
- * on the first keystroke.
+ * Like the date picker, the custom field is a real input rendered inside the
+ * menu rather than something swapped in afterwards. The previous version
+ * deferred entering edit mode through `setTimeout`, which on iOS meant the
+ * keyboard never opened (Safari only raises it for a focus inside a genuine
+ * user gesture) and, on every platform, meant the handler read a stale `value`
+ * from an older render. A field the user simply taps needs neither a timer nor
+ * a ref to work around one.
  */
 export function TaskEstimatePicker({
   value,
@@ -42,93 +64,52 @@ export function TaskEstimatePicker({
   const tToasts = useTranslations('tasks.toasts');
   const formatDuration = useFormatDuration();
 
-  const [isEditing, setIsEditing] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [draft, setDraft] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
 
   /**
-   * Entering edit mode is deferred through a timeout (see the menu item below),
-   * so by the time it runs the captured `value` may be a render behind — which
-   * showed up as the custom input opening blank instead of prefilled. A ref
-   * always reads the current one.
+   * Set when a menu item takes over, so the field's own blur does not also
+   * commit. Choosing a preset blurs the input first, which would otherwise fire
+   * a second, conflicting update right before the preset's.
    */
-  const valueRef = useRef(value);
-  valueRef.current = value;
+  const handledElsewhere = useRef(false);
 
-  useEffect(() => {
-    if (isEditing) inputRef.current?.select();
-  }, [isEditing]);
-
-  function startEditing() {
-    const current = valueRef.current;
-    setDraft(current ? String(current) : '');
-    setIsEditing(true);
+  function handleOpenChange(open: boolean) {
+    // Seeding on open means the field always starts from the current value,
+    // with no ref needed to dodge a stale closure.
+    if (open) {
+      setDraft(value ? String(value) : '');
+      handledElsewhere.current = false;
+    }
+    setIsOpen(open);
   }
 
-  function commit() {
+  function select(minutes: number | null) {
+    handledElsewhere.current = true;
+    setIsOpen(false);
+    onChange(minutes);
+  }
+
+  function commitDraft({ silent }: { silent: boolean }) {
     const trimmed = draft.trim();
+    const parsed = parseEstimate(draft);
 
-    // An emptied field means "no estimate" rather than an invalid one.
-    if (trimmed === '') {
-      setIsEditing(false);
-      if (valueRef.current !== null) onChange(null);
+    if (parsed === null && trimmed !== '') {
+      // On blur this is usually someone dismissing the menu, not submitting —
+      // complaining about it would be noise.
+      if (!silent) {
+        toast.error(
+          tToasts('estimateInvalid', { min: MIN_ESTIMATE_MINUTES, max: MAX_ESTIMATE_MINUTES }),
+        );
+      }
       return;
     }
 
-    const parsed = Number(trimmed);
-
-    if (
-      !Number.isFinite(parsed) ||
-      !Number.isInteger(parsed) ||
-      parsed < MIN_ESTIMATE_MINUTES ||
-      parsed > MAX_ESTIMATE_MINUTES
-    ) {
-      toast.error(
-        tToasts('estimateInvalid', { min: MIN_ESTIMATE_MINUTES, max: MAX_ESTIMATE_MINUTES }),
-      );
-      inputRef.current?.select();
-      return;
-    }
-
-    setIsEditing(false);
-    if (parsed !== valueRef.current) onChange(parsed);
-  }
-
-  if (isEditing) {
-    return (
-      <input
-        ref={inputRef}
-        type="number"
-        inputMode="numeric"
-        min={MIN_ESTIMATE_MINUTES}
-        max={MAX_ESTIMATE_MINUTES}
-        value={draft}
-        autoFocus
-        aria-label={t('changeEstimate')}
-        onChange={(event) => setDraft(event.target.value)}
-        onClick={(event) => event.stopPropagation()}
-        onBlur={commit}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter') {
-            event.preventDefault();
-            commit();
-          } else if (event.key === 'Escape') {
-            event.preventDefault();
-            // Escape abandons the edit; blur must not then commit it.
-            setIsEditing(false);
-          }
-        }}
-        className={cn(
-          'h-6 w-16 rounded-md border border-input bg-card px-1.5 text-xs tabular-nums outline-none',
-          'focus-visible:border-ring',
-          className,
-        )}
-      />
-    );
+    select(parsed);
   }
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={isOpen} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild disabled={disabled}>
         <button
           type="button"
@@ -147,14 +128,14 @@ export function TaskEstimatePicker({
         </button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="start" className="min-w-[11rem]">
+      <DropdownMenuContent align="start" className="min-w-[12rem]">
         <DropdownMenuLabel>{t('changeEstimate')}</DropdownMenuLabel>
         <DropdownMenuSeparator />
 
         {ESTIMATE_PRESETS.map((preset) => (
           <DropdownMenuItem
             key={preset}
-            onSelect={() => onChange(preset)}
+            onSelect={() => select(preset)}
             className="justify-between"
           >
             <span>{formatDuration(preset)}</span>
@@ -164,22 +145,51 @@ export function TaskEstimatePicker({
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem
-          onSelect={(event) => {
-            // The menu closes on select; swapping to the input in the same tick
-            // would lose the focus we are about to place in it.
-            event.preventDefault();
-            setTimeout(startEditing, 0);
-          }}
+        {/*
+          A plain wrapper, not a DropdownMenuItem: menu items intercept pointer
+          events, so the tap would never reach the field. Key events stop here
+          so the menu's typeahead does not swallow the digits being typed.
+        */}
+        <div
+          className="px-1 py-1"
+          onKeyDown={(event) => event.stopPropagation()}
+          onPointerDown={(event) => event.stopPropagation()}
         >
-          <span>{t('customEstimate')}</span>
-        </DropdownMenuItem>
+          <label className="flex flex-col gap-1">
+            <span className="px-1.5 text-xs text-muted-foreground">{t('customEstimate')}</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={MIN_ESTIMATE_MINUTES}
+              max={MAX_ESTIMATE_MINUTES}
+              value={draft}
+              placeholder={t('estimateHint', {
+                min: MIN_ESTIMATE_MINUTES,
+                max: MAX_ESTIMATE_MINUTES,
+              })}
+              onChange={(event) => setDraft(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key !== 'Enter') return;
+                event.preventDefault();
+                commitDraft({ silent: false });
+              }}
+              onBlur={() => {
+                if (handledElsewhere.current) return;
+                commitDraft({ silent: true });
+              }}
+              className="h-9 w-full rounded-md border border-input bg-card px-2 text-sm tabular-nums outline-none focus-visible:border-ring"
+            />
+          </label>
+        </div>
 
         {value !== null ? (
-          <DropdownMenuItem onSelect={() => onChange(null)}>
-            <X className="size-4" aria-hidden />
-            <span>{t('clearEstimate')}</span>
-          </DropdownMenuItem>
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={() => select(null)}>
+              <X className="size-4" aria-hidden />
+              <span>{t('clearEstimate')}</span>
+            </DropdownMenuItem>
+          </>
         ) : null}
       </DropdownMenuContent>
     </DropdownMenu>

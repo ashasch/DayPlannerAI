@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { CalendarPlus, CalendarX2, Check } from 'lucide-react';
 
@@ -26,99 +26,92 @@ interface TaskDatePickerProps {
 /**
  * Assigns or clears a task's planned day.
  *
- * Shortcuts cover the overwhelmingly common cases; the native date input
- * handles everything else — it brings its own locale-aware, accessible,
- * mobile-friendly calendar, which is far better than a hand-rolled grid.
+ * Shortcuts cover the common cases; the native date input handles everything
+ * else, bringing its own locale-aware, accessible calendar.
+ *
+ * The input is a real, visible control inside the menu rather than a hidden one
+ * opened via `showPicker()`. That earlier approach was broken on iOS Safari:
+ * `showPicker()` needs transient user activation, deferring it past the tap
+ * discarded that activation (`NotAllowedError`), and the fallback of
+ * focus()/click() on a zero-size `pointer-events: none` input does nothing on
+ * iOS, which only opens the date wheel for a genuine tap on a hit-testable
+ * input. Letting the user tap the input directly needs no activation, no
+ * synthetic events and no feature detection — it works the same everywhere.
  */
 export function TaskDatePicker({ value, onChange, disabled, children }: TaskDatePickerProps) {
   const t = useTranslations('tasks.actions');
-  const dateInputRef = useRef<HTMLInputElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   const today = todayIso();
   const tomorrow = toIsoDate(addDays(new Date(), 1));
 
-  function openNativePicker() {
-    const input = dateInputRef.current;
-    if (!input) return;
-
-    // `showPicker` is the only reliable way to open the calendar overlay; older
-    // browsers fall back to focusing the (visually hidden) input.
-    if (typeof input.showPicker === 'function') {
-      try {
-        input.showPicker();
-        return;
-      } catch {
-        // Some browsers throw unless the call is directly user-activated.
-      }
-    }
-
-    input.focus();
-    input.click();
+  function selectDate(date: IsoDate | null) {
+    setIsOpen(false);
+    onChange(date);
   }
 
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild disabled={disabled}>
-          {children ?? (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="size-8 shrink-0 text-muted-foreground hover:text-foreground"
-              aria-label={value ? t('changeDate') : t('setDate')}
-              title={value ? t('changeDate') : t('setDate')}
-            >
-              <CalendarPlus className="size-4" aria-hidden />
-            </Button>
-          )}
-        </DropdownMenuTrigger>
-
-        <DropdownMenuContent align="end" className="min-w-[12rem]">
-          <DropdownMenuItem onSelect={() => onChange(today)} className="justify-between">
-            <span>{t('today')}</span>
-            {value === today ? <Check className="size-4" aria-hidden /> : null}
-          </DropdownMenuItem>
-
-          <DropdownMenuItem onSelect={() => onChange(tomorrow)} className="justify-between">
-            <span>{t('tomorrow')}</span>
-            {value === tomorrow ? <Check className="size-4" aria-hidden /> : null}
-          </DropdownMenuItem>
-
-          <DropdownMenuItem
-            onSelect={(event) => {
-              // The menu closes on select; opening the picker in the same tick
-              // loses the user-activation the browser requires.
-              event.preventDefault();
-              setTimeout(openNativePicker, 0);
-            }}
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+      <DropdownMenuTrigger asChild disabled={disabled}>
+        {children ?? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-8 shrink-0 text-muted-foreground hover:text-foreground"
+            aria-label={value ? t('changeDate') : t('setDate')}
+            title={value ? t('changeDate') : t('setDate')}
           >
             <CalendarPlus className="size-4" aria-hidden />
-            <span>{t('pickDate')}</span>
-          </DropdownMenuItem>
+          </Button>
+        )}
+      </DropdownMenuTrigger>
 
-          {value ? (
-            <>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={() => onChange(null)}>
-                <CalendarX2 className="size-4" aria-hidden />
-                <span>{t('clearDate')}</span>
-              </DropdownMenuItem>
-            </>
-          ) : null}
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <DropdownMenuContent align="end" className="min-w-[13rem]">
+        <DropdownMenuItem onSelect={() => selectDate(today)} className="justify-between">
+          <span>{t('today')}</span>
+          {value === today ? <Check className="size-4" aria-hidden /> : null}
+        </DropdownMenuItem>
 
-      {/* Kept in the layout (not `display:none`) so `showPicker` can anchor to it. */}
-      <input
-        ref={dateInputRef}
-        type="date"
-        value={value ?? ''}
-        onChange={(event) => onChange(event.target.value || null)}
-        tabIndex={-1}
-        aria-hidden
-        className="pointer-events-none absolute size-0 opacity-0"
-      />
-    </>
+        <DropdownMenuItem onSelect={() => selectDate(tomorrow)} className="justify-between">
+          <span>{t('tomorrow')}</span>
+          {value === tomorrow ? <Check className="size-4" aria-hidden /> : null}
+        </DropdownMenuItem>
+
+        <DropdownMenuSeparator />
+
+        {/*
+          A plain wrapper, not a DropdownMenuItem: menu items hijack pointer and
+          keyboard handling, which would stop the input from ever receiving the
+          tap. Key events are contained so the menu's typeahead does not swallow
+          digits typed into the field.
+        */}
+        <div
+          className="px-1 py-1"
+          onKeyDown={(event) => event.stopPropagation()}
+          onPointerDown={(event) => event.stopPropagation()}
+        >
+          <label className="flex flex-col gap-1">
+            <span className="px-1.5 text-xs text-muted-foreground">{t('pickDate')}</span>
+            <input
+              type="date"
+              value={value ?? ''}
+              onChange={(event) => selectDate(event.target.value || null)}
+              className="h-9 w-full rounded-md border border-input bg-card px-2 text-sm outline-none focus-visible:border-ring"
+            />
+          </label>
+        </div>
+
+        {value ? (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={() => selectDate(null)}>
+              <CalendarX2 className="size-4" aria-hidden />
+              <span>{t('clearDate')}</span>
+            </DropdownMenuItem>
+          </>
+        ) : null}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
