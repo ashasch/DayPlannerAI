@@ -34,6 +34,12 @@
       "low": "Low"
     },
     "estimate": "{minutes} min",
+    "duration": {
+      "minutes": "{count} min",
+      "hours": "{count} h",
+      "hoursMinutes": "{hours} h {minutes} min",
+      "none": "No estimate"
+    },
     "noDate": "No date",
     "date": {
       "today": "Today",
@@ -53,7 +59,12 @@
       "cancel": "Cancel",
       "complete": "Mark as done",
       "reopen": "Reopen task",
-      "changePriority": "Change priority"
+      "changePriority": "Change priority",
+      "changeEstimate": "Change time estimate",
+      "setEstimate": "Set estimate",
+      "customEstimate": "Custom…",
+      "clearEstimate": "Clear estimate",
+      "estimateHint": "{min}–{max} min"
     },
     "toasts": {
       "dateUpdated": "Date updated",
@@ -61,6 +72,9 @@
       "completed": "Task completed",
       "reopened": "Task reopened",
       "priorityUpdated": "Priority updated",
+      "estimateUpdated": "Estimate updated",
+      "estimateCleared": "Estimate cleared",
+      "estimateInvalid": "Enter a number between {min} and {max} minutes",
       "updated": "Task updated",
       "deleted": "Task deleted",
       "updateFailed": "Couldn’t update the task",
@@ -71,6 +85,7 @@
       "titleLabel": "Title",
       "priorityLabel": "Priority",
       "categoryLabel": "Category",
+      "estimateLabel": "Time estimate",
       "dateLabel": "Date"
     }
   },

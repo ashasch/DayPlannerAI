@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Clock, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import type { IsoDate, Task, TaskPriority } from '@/lib/tasks/types';
@@ -11,11 +11,13 @@ import { PriorityPicker } from './priority-badge';
 import { TaskCheckbox } from './task-checkbox';
 import { TaskDateBadge } from './task-date-badge';
 import { TaskDatePicker } from './task-date-picker';
+import { TaskEstimatePicker } from './task-estimate-picker';
 
 interface TaskCardProps {
   task: Task;
   onToggleCompleted: (completed: boolean) => void;
   onChangePriority: (priority: TaskPriority) => void;
+  onChangeEstimate: (minutes: number | null) => void;
   onChangeDate: (date: IsoDate | null) => void;
   onDelete: () => void;
   /** Dims the card while its update is in flight. */
@@ -28,6 +30,7 @@ export function TaskCard({
   task,
   onToggleCompleted,
   onChangePriority,
+  onChangeEstimate,
   onChangeDate,
   onDelete,
   isPending,
@@ -63,14 +66,14 @@ export function TaskCard({
           {task.title}
         </p>
 
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-          {task.category ? <span>{task.category}</span> : null}
-          {task.estimatedMinutes ? (
-            <span className="inline-flex items-center gap-1">
-              <Clock className="size-3" aria-hidden />
-              {task.estimatedMinutes}
-            </span>
-          ) : null}
+        <div className="-ml-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+          {task.category ? <span className="ml-1">{task.category}</span> : null}
+
+          <TaskEstimatePicker
+            value={task.estimatedMinutes}
+            onChange={onChangeEstimate}
+            disabled={isPending}
+          />
         </div>
       </div>
 

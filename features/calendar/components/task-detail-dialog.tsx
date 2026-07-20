@@ -3,13 +3,14 @@
 import { useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
-import { Clock, X } from 'lucide-react';
+import { X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { PriorityPicker } from '@/features/tasks/components/priority-badge';
 import { TaskCheckbox } from '@/features/tasks/components/task-checkbox';
 import { TaskDateBadge } from '@/features/tasks/components/task-date-badge';
 import { TaskDatePicker } from '@/features/tasks/components/task-date-picker';
+import { TaskEstimatePicker } from '@/features/tasks/components/task-estimate-picker';
 import type { IsoDate, Task, TaskPriority } from '@/lib/tasks/types';
 import { cn } from '@/lib/utils';
 
@@ -20,6 +21,7 @@ interface TaskDetailDialogProps {
   onChangeDate: (date: IsoDate | null) => void;
   onToggleCompleted: (completed: boolean) => void;
   onChangePriority: (priority: TaskPriority) => void;
+  onChangeEstimate: (minutes: number | null) => void;
 }
 
 /**
@@ -35,6 +37,7 @@ export function TaskDetailDialog({
   onChangeDate,
   onToggleCompleted,
   onChangePriority,
+  onChangeEstimate,
 }: TaskDetailDialogProps) {
   const t = useTranslations('tasks.details');
   const tActions = useTranslations('tasks.actions');
@@ -131,14 +134,12 @@ export function TaskDetailDialog({
             </div>
           ) : null}
 
-          {task.estimatedMinutes ? (
-            <div className="flex items-center justify-between gap-3">
-              <dt className="text-muted-foreground">
-                <Clock className="inline size-3.5 align-[-2px]" aria-hidden />
-              </dt>
-              <dd className="text-sm tabular-nums">{task.estimatedMinutes}</dd>
-            </div>
-          ) : null}
+          <div className="flex items-center justify-between gap-3">
+            <dt className="text-muted-foreground">{t('estimateLabel')}</dt>
+            <dd>
+              <TaskEstimatePicker value={task.estimatedMinutes} onChange={onChangeEstimate} />
+            </dd>
+          </div>
 
           <div className="flex items-center justify-between gap-3">
             <dt className="text-muted-foreground">{t('dateLabel')}</dt>

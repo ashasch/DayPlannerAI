@@ -249,6 +249,9 @@ export function CalendarScreen() {
         onChangePriority={(priority) => {
           if (selectedTask) void mutations.setPriority(selectedTask, priority);
         }}
+        onChangeEstimate={(minutes) => {
+          if (selectedTask) void mutations.setEstimatedMinutes(selectedTask, minutes);
+        }}
         onChangeDate={(date) => {
           if (selectedTask) void mutations.setPlannedDate(selectedTask, date);
           // The task may move outside the loaded window, leaving the dialog

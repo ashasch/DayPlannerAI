@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { isValidIsoDate } from '@/lib/date';
 
+import { MAX_ESTIMATE_MINUTES, MIN_ESTIMATE_MINUTES } from './duration';
 import { TASK_PRIORITIES } from './types';
 
 /** A date, or explicit `null` to unschedule. */
@@ -15,8 +16,8 @@ const category = z.string().trim().max(60).nullable();
 const estimatedMinutes = z
   .number()
   .int()
-  .positive()
-  .max(60 * 24)
+  .min(MIN_ESTIMATE_MINUTES)
+  .max(MAX_ESTIMATE_MINUTES)
   .nullable();
 
 export const taskDraftSchema = z.object({

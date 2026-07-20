@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { PRIORITY_RANK, PriorityBadge } from '@/features/tasks/components/priority-badge';
 import { TaskDateBadge } from '@/features/tasks/components/task-date-badge';
 import { TaskDatePicker } from '@/features/tasks/components/task-date-picker';
+import { useFormatDuration } from '@/features/tasks/lib/use-format-duration';
 import type { DraftItem, IsoDate } from '@/lib/tasks/types';
 
 interface TaskDraftListProps {
@@ -34,6 +35,7 @@ export function TaskDraftList({
   isSaving,
 }: TaskDraftListProps) {
   const t = useTranslations('capture.results');
+  const formatDuration = useFormatDuration();
 
   // Sorting a copy keeps the caller's array order untouched; every callback
   // below identifies the draft by id, so display order is irrelevant to it.
@@ -79,7 +81,7 @@ export function TaskDraftList({
                       {draft.estimatedMinutes ? (
                         <span className="inline-flex items-center gap-1">
                           <Clock className="size-3" aria-hidden />
-                          {draft.estimatedMinutes}
+                          {formatDuration(draft.estimatedMinutes)}
                         </span>
                       ) : null}
                     </div>

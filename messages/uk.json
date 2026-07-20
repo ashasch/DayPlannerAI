@@ -34,6 +34,12 @@
       "low": "Низький"
     },
     "estimate": "{minutes} хв",
+    "duration": {
+      "minutes": "{count} хв",
+      "hours": "{count} год",
+      "hoursMinutes": "{hours} год {minutes} хв",
+      "none": "Без оцінки"
+    },
     "noDate": "Без дати",
     "date": {
       "today": "Сьогодні",
@@ -53,7 +59,12 @@
       "cancel": "Скасувати",
       "complete": "Позначити виконаною",
       "reopen": "Повернути в роботу",
-      "changePriority": "Змінити пріоритет"
+      "changePriority": "Змінити пріоритет",
+      "changeEstimate": "Змінити оцінку часу",
+      "setEstimate": "Вказати час",
+      "customEstimate": "Своє значення",
+      "clearEstimate": "Прибрати оцінку",
+      "estimateHint": "Від {min} до {max} хв"
     },
     "toasts": {
       "dateUpdated": "Дату оновлено",
@@ -61,6 +72,9 @@
       "completed": "Задачу виконано",
       "reopened": "Задачу повернуто в роботу",
       "priorityUpdated": "Пріоритет оновлено",
+      "estimateUpdated": "Оцінку часу оновлено",
+      "estimateCleared": "Оцінку часу прибрано",
+      "estimateInvalid": "Вкажи число від {min} до {max} хвилин",
       "updated": "Задачу оновлено",
       "deleted": "Задачу видалено",
       "updateFailed": "Не вдалося оновити задачу",
@@ -71,6 +85,7 @@
       "titleLabel": "Назва",
       "priorityLabel": "Пріоритет",
       "categoryLabel": "Категорія",
+      "estimateLabel": "Час виконання",
       "dateLabel": "Дата"
     }
   },

@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { fromIsoDate, isValidIsoDate, toIsoDate, todayIso } from '@/lib/date';
+import { clampEstimate } from '@/lib/tasks/duration';
 import type { TaskDraft } from '@/lib/tasks/types';
 
 import { DEFAULT_MODEL, getAiClient } from './client';
@@ -140,7 +141,9 @@ export async function analyzeBrainDump(
       title: task.title,
       priority: task.priority,
       category: task.category ?? null,
-      estimatedMinutes: task.estimatedMinutes ?? null,
+      // The model occasionally proposes a 2-minute task. Left alone, that one
+      // value would fail the save schema's minimum and reject the whole batch.
+      estimatedMinutes: clampEstimate(task.estimatedMinutes),
       plannedDate: task.plannedDate ?? null,
     })),
     model: DEFAULT_MODEL,

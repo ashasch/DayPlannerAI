@@ -73,6 +73,19 @@ export function useTaskMutations(setTasks: Dispatch<SetStateAction<TasksState>>)
     [patch, t],
   );
 
+  const setEstimatedMinutes = useCallback(
+    (task: Task, estimatedMinutes: number | null) => {
+      if (task.estimatedMinutes === estimatedMinutes) return Promise.resolve();
+
+      return patch(
+        task,
+        { estimatedMinutes },
+        estimatedMinutes ? t('estimateUpdated') : t('estimateCleared'),
+      );
+    },
+    [patch, t],
+  );
+
   const remove = useCallback(
     async (task: Task) => {
       let snapshot: TasksState = null;
@@ -93,5 +106,5 @@ export function useTaskMutations(setTasks: Dispatch<SetStateAction<TasksState>>)
     [setTasks, t],
   );
 
-  return { setPlannedDate, setCompleted, setPriority, remove };
+  return { setPlannedDate, setCompleted, setPriority, setEstimatedMinutes, remove };
 }

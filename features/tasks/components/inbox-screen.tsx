@@ -127,6 +127,9 @@ export function InboxScreen() {
                           void mutations.setCompleted(task, completed)
                         }
                         onChangePriority={(priority) => void mutations.setPriority(task, priority)}
+                        onChangeEstimate={(minutes) =>
+                          void mutations.setEstimatedMinutes(task, minutes)
+                        }
                         onChangeDate={(date) => void mutations.setPlannedDate(task, date)}
                         onDelete={() => void mutations.remove(task)}
                       />
