@@ -95,7 +95,16 @@ export class PostgresTaskRepository implements TaskRepository {
 
     const [row] = await getDb()
       .update(tasks)
-      .set({ ...patch, updatedAt: new Date() })
+      .set({
+        ...patch,
+        // Stamp the moment of completion, and clear it when a task is
+        // reopened, so the dashboard never counts a task on a day it was not
+        // actually finished.
+        ...(patch.completed === undefined
+          ? {}
+          : { completedAt: patch.completed ? new Date() : null }),
+        updatedAt: new Date(),
+      })
       .where(and(eq(tasks.userId, userId), eq(tasks.id, taskId)))
       .returning();
 

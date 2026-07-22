@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { CalendarDays, Inbox, Sparkles } from 'lucide-react';
+import { BarChart3, CalendarDays, Inbox, Sparkles } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
@@ -11,6 +11,7 @@ const ITEMS = [
   { href: '/capture', key: 'capture', Icon: Sparkles },
   { href: '/inbox', key: 'inbox', Icon: Inbox },
   { href: '/calendar', key: 'calendar', Icon: CalendarDays },
+  { href: '/dashboard', key: 'dashboard', Icon: BarChart3 },
 ] as const;
 
 /** Primary navigation. Client-side only because it highlights the active route. */

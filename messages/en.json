@@ -45,6 +45,7 @@
     "capture": "Capture",
     "inbox": "Inbox",
     "calendar": "Calendar",
+    "dashboard": "Dashboard",
     "openMenu": "Open menu",
     "account": "Account"
   },
@@ -119,6 +120,85 @@
     "count": "{count} tasks",
     "scheduled": "Scheduled",
     "unscheduled": "No date"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Task statistics: categories, weekdays, completion.",
+    "loadFailed": "Couldn’t load your statistics",
+    "empty": "No data yet. Create a few tasks and statistics will show up here.",
+    "emptyCta": "Go to Capture",
+    "scope": {
+      "label": "Tasks",
+      "all": "All tasks",
+      "completed": "Completed only"
+    },
+    "period": {
+      "label": "Period",
+      "all": "All time",
+      "week": "This week",
+      "month": "This month",
+      "custom": "Custom range",
+      "from": "From",
+      "to": "To",
+      "apply": "Apply",
+      "invalidRange": "“From” cannot be later than “to”"
+    },
+    "metrics": {
+      "taskCount": "Tasks in period",
+      "totalMinutes": "Estimated time",
+      "completionRate": "Completed",
+      "completionDetail": "{completed} of {total}",
+      "busiestCategory": "Busiest category",
+      "noCategory": "No category",
+      "none": "—"
+    },
+    "categories": {
+      "title": "Categories",
+      "subtitle": "Task count and total time",
+      "empty": "No tasks in this period",
+      "byCount": "By count",
+      "byTime": "By time",
+      "tasks": "tasks",
+      "minutes": "min"
+    },
+    "weekdays": {
+      "title": "By weekday",
+      "subtitle": "Based on the planned date",
+      "empty": "No task in this period has a date",
+      "busiest": "Busiest day: {day}",
+      "short": {
+        "0": "Mon",
+        "1": "Tue",
+        "2": "Wed",
+        "3": "Thu",
+        "4": "Fri",
+        "5": "Sat",
+        "6": "Sun"
+      }
+    },
+    "heatmap": {
+      "title": "Activity",
+      "subtitle": "Tasks completed over the last six months",
+      "less": "less",
+      "more": "more",
+      "tooltip": "{date}: {count} completed",
+      "tooltipNone": "{date}: nothing completed"
+    },
+    "summary": {
+      "title": "Weekly summary",
+      "subtitle": "An AI look at your week",
+      "generate": "Generate summary",
+      "regenerate": "Refresh",
+      "generating": "Reading your week…",
+      "empty": "No summary yet. Press the button and the AI will look at your week.",
+      "generatedAt": "Generated {date}",
+      "failed": "Couldn’t generate the summary",
+      "notConfigured": "AI isn’t configured — add OPENROUTER_API_KEY to .env"
+    },
+    "timeOfDay": {
+      "title": "Time of day",
+      "explanation": "Tasks only store a date, not a time. Showing a morning/afternoon/evening split needs a time on the task first."
+    }
   },
   "calendar": {
     "title": "Calendar",
