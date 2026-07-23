@@ -11,6 +11,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 
+import { TASK_CATEGORIES } from '@/lib/tasks/categories';
 import { TASK_PRIORITIES } from '@/lib/tasks/types';
 
 /**
@@ -61,6 +62,14 @@ export const passwordResetTokens = pgTable(
 
 export const taskPriority = pgEnum('task_priority', TASK_PRIORITIES);
 
+/**
+ * Categories as a database enum.
+ *
+ * Postgres rejects anything outside the list, so a stray Ukrainian word can no
+ * longer be written even if some future code path forgets to normalise.
+ */
+export const taskCategory = pgEnum('task_category', TASK_CATEGORIES);
+
 export const tasks = pgTable(
   'tasks',
   {
@@ -72,7 +81,7 @@ export const tasks = pgTable(
 
     title: text('title').notNull(),
     priority: taskPriority('priority').notNull().default('medium'),
-    category: text('category'),
+    category: taskCategory('category'),
     estimatedMinutes: integer('estimated_minutes'),
 
     /**

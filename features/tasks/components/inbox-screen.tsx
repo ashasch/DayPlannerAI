@@ -127,6 +127,7 @@ export function InboxScreen() {
                           void mutations.setCompleted(task, completed)
                         }
                         onChangePriority={(priority) => void mutations.setPriority(task, priority)}
+                        onChangeCategory={(category) => void mutations.setCategory(task, category)}
                         onChangeEstimate={(minutes) =>
                           void mutations.setEstimatedMinutes(task, minutes)
                         }

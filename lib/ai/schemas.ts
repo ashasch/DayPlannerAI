@@ -19,7 +19,13 @@ export const extractedTaskSchema = z.object({
 
   priority: z.enum(TASK_PRIORITIES),
 
-  /** Free-form grouping such as "work" or "home". Model-chosen, may be absent. */
+  /**
+   * One of the canonical codes.
+   *
+   * Kept as a loose string here and normalised afterwards: the model
+   * occasionally answers in the user's language, and rejecting the whole batch
+   * over one stray label would lose every task the user just dictated.
+   */
   category: z.string().trim().max(60).nullish(),
 
   /** Rough effort estimate; null when the model cannot reasonably guess. */

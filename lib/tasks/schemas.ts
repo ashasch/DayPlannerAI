@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { isValidIsoDate } from '@/lib/date';
 
+import { TASK_CATEGORIES } from './categories';
 import { MAX_ESTIMATE_MINUTES, MIN_ESTIMATE_MINUTES } from './duration';
 import { TASK_PRIORITIES } from './types';
 
@@ -12,7 +13,7 @@ const plannedDate = z
   .nullable();
 
 const title = z.string().trim().min(1).max(200);
-const category = z.string().trim().max(60).nullable();
+const category = z.enum(TASK_CATEGORIES).nullable();
 const estimatedMinutes = z
   .number()
   .int()

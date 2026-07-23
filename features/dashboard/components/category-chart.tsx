@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
+import { useCategoryLabel } from '@/features/tasks/lib/use-category-label';
 import { useFormatDuration } from '@/features/tasks/lib/use-format-duration';
 import type { CategoryStat } from '@/lib/dashboard/types';
 import { cn } from '@/lib/utils';
@@ -26,12 +27,12 @@ function barOpacity(index: number, total: number): number {
 
 export function CategoryChart({ data }: { data: CategoryStat[] }) {
   const t = useTranslations('dashboard.categories');
-  const tMetrics = useTranslations('dashboard.metrics');
   const formatDuration = useFormatDuration();
+  const categoryLabel = useCategoryLabel();
   const [metric, setMetric] = useState<Metric>('count');
 
   const rows = data.map((row) => ({
-    name: row.category ?? tMetrics('noCategory'),
+    name: categoryLabel(row.category),
     count: row.taskCount,
     time: row.totalMinutes,
   }));

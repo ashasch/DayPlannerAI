@@ -11,7 +11,8 @@ import { TaskCheckbox } from '@/features/tasks/components/task-checkbox';
 import { TaskDateBadge } from '@/features/tasks/components/task-date-badge';
 import { TaskDatePicker } from '@/features/tasks/components/task-date-picker';
 import { TaskEstimatePicker } from '@/features/tasks/components/task-estimate-picker';
-import type { IsoDate, Task, TaskPriority } from '@/lib/tasks/types';
+import { TaskCategoryPicker } from '@/features/tasks/components/task-category-picker';
+import type { IsoDate, Task, TaskCategory, TaskPriority } from '@/lib/tasks/types';
 import { cn } from '@/lib/utils';
 
 interface TaskDetailDialogProps {
@@ -21,6 +22,7 @@ interface TaskDetailDialogProps {
   onChangeDate: (date: IsoDate | null) => void;
   onToggleCompleted: (completed: boolean) => void;
   onChangePriority: (priority: TaskPriority) => void;
+  onChangeCategory: (category: TaskCategory | null) => void;
   onChangeEstimate: (minutes: number | null) => void;
 }
 
@@ -37,6 +39,7 @@ export function TaskDetailDialog({
   onChangeDate,
   onToggleCompleted,
   onChangePriority,
+  onChangeCategory,
   onChangeEstimate,
 }: TaskDetailDialogProps) {
   const t = useTranslations('tasks.details');
@@ -127,12 +130,12 @@ export function TaskDetailDialog({
             </dd>
           </div>
 
-          {task.category ? (
-            <div className="flex items-center justify-between gap-3">
-              <dt className="text-muted-foreground">{t('categoryLabel')}</dt>
-              <dd className="text-sm">{task.category}</dd>
-            </div>
-          ) : null}
+          <div className="flex items-center justify-between gap-3">
+            <dt className="text-muted-foreground">{t('categoryLabel')}</dt>
+            <dd>
+              <TaskCategoryPicker value={task.category} onChange={onChangeCategory} />
+            </dd>
+          </div>
 
           <div className="flex items-center justify-between gap-3">
             <dt className="text-muted-foreground">{t('estimateLabel')}</dt>

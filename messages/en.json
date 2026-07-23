@@ -56,6 +56,18 @@
       "low": "Low"
     },
     "estimate": "{minutes} min",
+    "category": {
+      "work": "Work",
+      "home": "Home",
+      "health": "Health",
+      "education": "Education",
+      "leisure": "Leisure",
+      "personal": "Personal",
+      "finance": "Finance",
+      "social": "Social",
+      "other": "Other",
+      "none": "No category"
+    },
     "duration": {
       "minutes": "{count} min",
       "hours": "{count} h",
@@ -82,6 +94,9 @@
       "complete": "Mark as done",
       "reopen": "Reopen task",
       "changePriority": "Change priority",
+      "changeCategory": "Change category",
+      "setCategory": "Category",
+      "clearCategory": "Clear category",
       "changeEstimate": "Change time estimate",
       "setEstimate": "Set estimate",
       "customEstimate": "Custom…",
@@ -94,6 +109,8 @@
       "completed": "Task completed",
       "reopened": "Task reopened",
       "priorityUpdated": "Priority updated",
+      "categoryUpdated": "Category updated",
+      "categoryCleared": "Category cleared",
       "estimateUpdated": "Estimate updated",
       "estimateCleared": "Estimate cleared",
       "estimateInvalid": "Enter a number between {min} and {max} minutes",

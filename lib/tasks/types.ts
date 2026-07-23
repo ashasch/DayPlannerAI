@@ -5,6 +5,11 @@
  * other just to agree on what a priority is.
  */
 
+import type { TaskCategory } from './categories';
+
+export type { TaskCategory };
+export { TASK_CATEGORIES, isTaskCategory, normaliseCategory } from './categories';
+
 export const TASK_PRIORITIES = ['high', 'medium', 'low'] as const;
 
 export type TaskPriority = (typeof TASK_PRIORITIES)[number];
@@ -23,7 +28,7 @@ export interface Task {
   id: string;
   title: string;
   priority: TaskPriority;
-  category: string | null;
+  category: TaskCategory | null;
   estimatedMinutes: number | null;
   /** `null` means unscheduled — it lives in the Inbox but not the calendar. */
   plannedDate: IsoDate | null;
@@ -36,7 +41,7 @@ export interface Task {
 export interface TaskDraft {
   title: string;
   priority: TaskPriority;
-  category: string | null;
+  category: TaskCategory | null;
   estimatedMinutes: number | null;
   plannedDate: IsoDate | null;
 }

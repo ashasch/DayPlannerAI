@@ -4,19 +4,21 @@ import { useTranslations } from 'next-intl';
 import { Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import type { IsoDate, Task, TaskPriority } from '@/lib/tasks/types';
+import type { IsoDate, Task, TaskCategory, TaskPriority } from '@/lib/tasks/types';
 import { cn } from '@/lib/utils';
 
 import { PRIORITY_ACCENT_BORDER, PriorityPicker } from './priority-badge';
 import { TaskCheckbox } from './task-checkbox';
 import { TaskDateBadge } from './task-date-badge';
 import { TaskDatePicker } from './task-date-picker';
+import { TaskCategoryPicker } from './task-category-picker';
 import { TaskEstimatePicker } from './task-estimate-picker';
 
 interface TaskCardProps {
   task: Task;
   onToggleCompleted: (completed: boolean) => void;
   onChangePriority: (priority: TaskPriority) => void;
+  onChangeCategory: (category: TaskCategory | null) => void;
   onChangeEstimate: (minutes: number | null) => void;
   onChangeDate: (date: IsoDate | null) => void;
   onDelete: () => void;
@@ -30,6 +32,7 @@ export function TaskCard({
   task,
   onToggleCompleted,
   onChangePriority,
+  onChangeCategory,
   onChangeEstimate,
   onChangeDate,
   onDelete,
@@ -70,7 +73,11 @@ export function TaskCard({
         </p>
 
         <div className="-ml-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-          {task.category ? <span className="ml-1">{task.category}</span> : null}
+          <TaskCategoryPicker
+            value={task.category}
+            onChange={onChangeCategory}
+            disabled={isPending}
+          />
 
           <TaskEstimatePicker
             value={task.estimatedMinutes}

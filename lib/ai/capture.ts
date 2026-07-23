@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { fromIsoDate, isValidIsoDate, toIsoDate, todayIso } from '@/lib/date';
+import { normaliseCategory, TASK_CATEGORIES } from '@/lib/tasks/categories';
 import { clampEstimate } from '@/lib/tasks/duration';
 import type { TaskDraft } from '@/lib/tasks/types';
 
@@ -62,7 +63,12 @@ Rules:
 - Write each title in the SAME language as the input, phrased imperatively and concisely.
 - priority: "high" for anything with a deadline, dependency on others, or explicit urgency;
   "low" for vague someday items; "medium" otherwise.
-- category: a short lowercase grouping (e.g. "work", "home", "health"), or null.
+- category: EXACTLY one of these codes, or null. Never translate them, never
+  invent new ones, never answer in the user's language:
+  ${TASK_CATEGORIES.join(', ')}
+  Guidance: education = studying/courses; leisure = hobbies, rest, entertainment;
+  social = friends, family, meetups; personal = admin and errands for yourself;
+  finance = bills, banking, budgeting; other = fits nothing above.
 - estimatedMinutes: a realistic integer estimate, or null if genuinely unguessable.
 - plannedDate: "YYYY-MM-DD" when the text points at a specific day, otherwise null.
   * "сьогодні"/"today" -> today's date.
@@ -77,7 +83,7 @@ Rules:
 - Never invent a date that the text does not support. null is always the safe answer.
 
 Respond with ONLY a JSON object of the form:
-{"tasks":[{"title":"…","priority":"high|medium|low","category":"…"|null,"estimatedMinutes":30|null,"plannedDate":"2026-07-25"|null}]}
+{"tasks":[{"title":"…","priority":"high|medium|low","category":"work"|null,"estimatedMinutes":30|null,"plannedDate":"2026-07-25"|null}]}
 No markdown fences, no commentary, no trailing text.`;
 }
 
@@ -140,7 +146,9 @@ export async function analyzeBrainDump(
     tasks: analysis.tasks.map((task) => ({
       title: task.title,
       priority: task.priority,
-      category: task.category ?? null,
+      // Second line of defence: the prompt asks for a code, this guarantees
+      // one. A model that answers "навчання" still lands on `education`.
+      category: normaliseCategory(task.category),
       // The model occasionally proposes a 2-minute task. Left alone, that one
       // value would fail the save schema's minimum and reject the whole batch.
       estimatedMinutes: clampEstimate(task.estimatedMinutes),

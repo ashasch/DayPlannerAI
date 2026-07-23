@@ -1,4 +1,4 @@
-import type { IsoDate, Task, TaskDraft, TaskPriority } from '@/lib/tasks/types';
+import type { IsoDate, Task, TaskCategory, TaskDraft, TaskPriority } from '@/lib/tasks/types';
 
 /** A persisted user. `passwordHash` is `null` for accounts created via OAuth only. */
 export interface UserRecord {
@@ -60,7 +60,7 @@ export interface UserRepository {
 export interface TaskPatch {
   title?: string;
   priority?: TaskPriority;
-  category?: string | null;
+  category?: TaskCategory | null;
   estimatedMinutes?: number | null;
   plannedDate?: IsoDate | null;
   completed?: boolean;

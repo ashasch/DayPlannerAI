@@ -4,7 +4,7 @@ import { useCallback, type Dispatch, type SetStateAction } from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
-import type { IsoDate, Task, TaskPriority } from '@/lib/tasks/types';
+import type { IsoDate, Task, TaskCategory, TaskPriority } from '@/lib/tasks/types';
 
 import { deleteTask, updateTask } from './api';
 
@@ -73,6 +73,15 @@ export function useTaskMutations(setTasks: Dispatch<SetStateAction<TasksState>>)
     [patch, t],
   );
 
+  const setCategory = useCallback(
+    (task: Task, category: TaskCategory | null) => {
+      if (task.category === category) return Promise.resolve();
+
+      return patch(task, { category }, category ? t('categoryUpdated') : t('categoryCleared'));
+    },
+    [patch, t],
+  );
+
   const setEstimatedMinutes = useCallback(
     (task: Task, estimatedMinutes: number | null) => {
       if (task.estimatedMinutes === estimatedMinutes) return Promise.resolve();
@@ -106,5 +115,12 @@ export function useTaskMutations(setTasks: Dispatch<SetStateAction<TasksState>>)
     [setTasks, t],
   );
 
-  return { setPlannedDate, setCompleted, setPriority, setEstimatedMinutes, remove };
+  return {
+    setPlannedDate,
+    setCompleted,
+    setPriority,
+    setCategory,
+    setEstimatedMinutes,
+    remove,
+  };
 }

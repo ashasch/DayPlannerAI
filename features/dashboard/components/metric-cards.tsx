@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { CheckCircle2, Clock, ListTodo, Tag } from 'lucide-react';
 
+import { useCategoryLabel } from '@/features/tasks/lib/use-category-label';
 import { useFormatDuration } from '@/features/tasks/lib/use-format-duration';
 import type { DashboardTotals } from '@/lib/dashboard/types';
 
@@ -14,6 +15,7 @@ interface MetricCardsProps {
 export function MetricCards({ totals }: MetricCardsProps) {
   const t = useTranslations('dashboard.metrics');
   const formatDuration = useFormatDuration();
+  const categoryLabel = useCategoryLabel();
 
   const cards = [
     {
@@ -43,7 +45,7 @@ export function MetricCards({ totals }: MetricCardsProps) {
     {
       key: 'busiestCategory',
       label: t('busiestCategory'),
-      value: totals.busiestCategory ?? t('none'),
+      value: totals.busiestCategory ? categoryLabel(totals.busiestCategory) : t('none'),
       detail: null,
       Icon: Tag,
     },

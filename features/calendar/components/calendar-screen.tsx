@@ -249,6 +249,9 @@ export function CalendarScreen() {
         onChangePriority={(priority) => {
           if (selectedTask) void mutations.setPriority(selectedTask, priority);
         }}
+        onChangeCategory={(category) => {
+          if (selectedTask) void mutations.setCategory(selectedTask, category);
+        }}
         onChangeEstimate={(minutes) => {
           if (selectedTask) void mutations.setEstimatedMinutes(selectedTask, minutes);
         }}

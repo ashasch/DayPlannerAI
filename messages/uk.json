@@ -56,6 +56,18 @@
       "low": "Низький"
     },
     "estimate": "{minutes} хв",
+    "category": {
+      "work": "Робота",
+      "home": "Дім",
+      "health": "Здоров’я",
+      "education": "Навчання",
+      "leisure": "Дозвілля",
+      "personal": "Особисте",
+      "finance": "Фінанси",
+      "social": "Спілкування",
+      "other": "Інше",
+      "none": "Без категорії"
+    },
     "duration": {
       "minutes": "{count} хв",
       "hours": "{count} год",
@@ -82,6 +94,9 @@
       "complete": "Позначити виконаною",
       "reopen": "Повернути в роботу",
       "changePriority": "Змінити пріоритет",
+      "changeCategory": "Змінити категорію",
+      "setCategory": "Категорія",
+      "clearCategory": "Прибрати категорію",
       "changeEstimate": "Змінити оцінку часу",
       "setEstimate": "Вказати час",
       "customEstimate": "Своє значення",
@@ -94,6 +109,8 @@
       "completed": "Задачу виконано",
       "reopened": "Задачу повернуто в роботу",
       "priorityUpdated": "Пріоритет оновлено",
+      "categoryUpdated": "Категорію оновлено",
+      "categoryCleared": "Категорію прибрано",
       "estimateUpdated": "Оцінку часу оновлено",
       "estimateCleared": "Оцінку часу прибрано",
       "estimateInvalid": "Вкажи число від {min} до {max} хвилин",
